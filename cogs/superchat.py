@@ -1,9 +1,7 @@
 import os
-from re import M
 import discord
 from discord.ext import commands
-from discord.commands import SlashCommand
-from discord import Option, OptionChoice, SlashCommandGroup
+from discord import Option, SlashCommandGroup
 from ..lib import face
 import joblib
 
@@ -34,8 +32,8 @@ class SuperChatCog(commands.Cog):
     @superchat.command(name='give', description='スーパーチャットを送ります')
     async def give(
         self,
-        money: Option(int, description='送る金額を決めます 100 - 50,000', min_value=100, max_value=50000, default=500, required=True),
-        message: Option(str, description='メッセージの内容を決定します'),
+        money: Option(int, description='送る金額を決めます 100 - 50,000', min_value=100, max_value=50000, default=500, required=False),
+        message: Option(str, description='メッセージの内容を決定します', default=''),
         ctx: discord.ApplicationContext
     ):
         embed = discord.Embed(
