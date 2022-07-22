@@ -34,18 +34,6 @@ class ItudokoCog(commands.Cog):
         OptionChoice(name='何をした', value='naniwosita')
     ]
 
-    def set(number,content):
-        with open('./itudoko.yaml', 'r+',encoding="utf-8_sig") as f:
-                data = yaml.safe_load(f)
-                number = itudoko_list
-                hogedata = data['itu']
-                hogedata.append(content)
-                print (hogedata)
-                data['itu'] = hogedata
-                print (data)
-                f.seek(0)
-                yaml.dump(data, f,default_flow_style=False,allow_unicode=True)
-
     #コマンドグループを定義っ！！！
     itudoko = SlashCommandGroup('itudoko', 'test')
 
