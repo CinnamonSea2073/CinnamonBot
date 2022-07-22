@@ -27,17 +27,18 @@ class ItudokoCog(commands.Cog):
         return message
 
     itudoko_list = [
-        OptionChoice(name='itu', value=1),
-        OptionChoice(name='dokode', value=2),
-        OptionChoice(name='darega', value=3),
-        OptionChoice(name='naniwosita', value=4)
+        OptionChoice(name='いつ', value='itu'),
+        OptionChoice(name='どこで', value='dokode'),
+        OptionChoice(name='だれが', value='darega'),
+        OptionChoice(name='どのように', value='donoyouni'),
+        OptionChoice(name='何をした', value='naniwosita')
     ]
 
     def set(number,content):
         with open('./itudoko.yaml', 'r+',encoding="utf-8_sig") as f:
                 data = yaml.safe_load(f)
                 number = itudoko_list
-                hogedata = data[""]
+                hogedata = data['itu']
                 hogedata.append(content)
                 print (hogedata)
                 data['itu'] = hogedata
@@ -58,24 +59,22 @@ class ItudokoCog(commands.Cog):
 
     @itudoko.command(name="set",description="いつどこで誰が何をしたかに単語を追加します")
     async def itudoko_set(
-            self,
-            ctx: discord.ApplicationContext,
-            number: Option(str, required=True, description="追加する項目を設定してください \n 1:いつ \n 2:どこで \n 3:だれが \n 4:どのように \n 5:何をした", ),
-            content: Option(str, required=True, description="追加する単語を設定してください", ),
-            ):
-        if number == "1":
-            with open('./itudoko.yaml', 'r+',encoding="utf-8_sig") as f:
-                data = yaml.safe_load(f)
-                hogedata = data['itu']
-                hogedata.append(content)
-                print (hogedata)
-                data['itu'] = hogedata
-                print (data)
-                f.seek(0)
-                yaml.dump(data, f,default_flow_style=False,allow_unicode=True)
-            await ctx.respond(f"「いつ」に{content}を追加しました。")
-        else :
-            await ctx.respond(f"{number}は無効です。")
+        self,
+        ctx: discord.ApplicationContext,
+        choice: Option(str, choices=itudoko_list, required=True, description="追加する項目を設定してください", ),
+        content: Option(str, required=True, description="追加する単語を設定してください", ),
+        ):
+
+        with open('./itudoko.yaml', 'r+',encoding="utf-8_sig") as f:
+            data = yaml.safe_load(f)
+            hogedata = data[choice]
+            hogedata.append(content)
+            print (hogedata)
+            data[choice] = hogedata
+            print (data)
+            f.seek(0)
+            yaml.dump(data, f,default_flow_style=False,allow_unicode=True)
+        await ctx.respond(f"「いつ」に{content}を追加しました。")
 
 def setup(bot):
     bot.add_cog(ItudokoCog(bot))
