@@ -8,46 +8,37 @@ import copy
 import os
 import requests
 
+users = dict()
+with open('./game.yaml', 'r', encoding="utf-8_sig") as f:
+    tmp = yaml.safe_load(f)
+    if tmp != None:
+        users = tmp
+
 class GamesCog(commands.Cog):
 
     def __init__(self, bot):
         print('げーむ初期化.')
         self.bot = bot
 
-    def point(name):
-        with open('./game.yaml', 'r+',encoding="utf-8_sig") as f:
-            data = yaml.safe_load(f)
-            name = f"{name}s"
-            data = data[name]
-            return "".join(data)
+    def point(id, name):
+        global users
+        if id not in users:
+            users[id] = {"name":name, "point":100}
+            with open('./game.yaml', 'w',encoding="utf-8_sig") as f:
+                yaml.dump(users, f,default_flow_style=False,allow_unicode=True)
+        return users[id]["point"] 
 
-    def getpoint(name,newpoint,bool):
-        with open('./game.yaml', 'r+',encoding="utf-8_sig") as f:
-            data = yaml.safe_load(f)
-            #Discordidにsをつける
-            name = f"{name}s"
-            #その人のリストを参照
-            list = data[name]
-            #突っ込む前のポイントを参照
-            oldpoint = data[name]
-            #リストを文字列にする
-            oldpoint = "".join(oldpoint)
-            newpoint = "".join(newpoint)
-            print (oldpoint)
-            #計算する（int）
-            if bool == True:
-                point = int(newpoint) + int(oldpoint)
-            else:
-                point = int(oldpoint) - int(newpoint)
-            #python内で最初のデータに新しいポイントを突っ込む
-            list[0] = str(point)
-            print (list)
-            #突っ込んだものをyamlに突っ込む準備
-            data[name] = list
-            print (data)
-            f.seek(0)
-            yaml.dump(data, f,default_flow_style=False,allow_unicode=True)
-            return "".join(data[name])
+    def getpoint(id,name,point):
+        global users
+        if id in users:
+            point += users[id]["point"]
+        else:
+            point += 100
+        users[id] = {"name":name, "point":point}
+
+        with open('./game.yaml', 'w',encoding="utf-8_sig") as f:
+            yaml.dump(users, f,default_flow_style=False,allow_unicode=True)
+        return str(users[id]["point"])
 
 
     #コマンドグループを定義っ！！！
@@ -59,27 +50,29 @@ class GamesCog(commands.Cog):
         ctx: discord.ApplicationContext,
         ):
         print (ctx.author.id)
-        await ctx.respond(f"現在のあなたのポイントは **{GamesCog.point(ctx.author.id)}** です！")
+        await ctx.respond(f"現在のあなたのポイントは **{GamesCog.point(ctx.author.id, ctx.author.name)}** です！")
 
     @games.command(name="up",description="ポイントを増やします")
     async def up(
         self,
         ctx: discord.ApplicationContext,
-        point: Option(str, required=True, description="追加する量を設定してください", )
+        point: Option(int, required=True, description="追加する量を設定してください", )
         ):
         print (ctx.author.id)
         id = ctx.author.id
-        await ctx.respond(f"現在のあなたのポイントは **{GamesCog.getpoint(id,point,True)}** です！")
+        name = ctx.author.name
+        await ctx.respond(f"現在のあなたのポイントは **{GamesCog.getpoint(id,name,point)}** です！")
     
     @games.command(name="down",description="ポイントを減らします")
     async def down(
         self,
         ctx: discord.ApplicationContext,
-        point: Option(str, required=True, description="減らす量を設定してください", )
+        point: Option(int, required=True, description="減らす量を設定してください", )
         ):
         print (ctx.author.id)
         id = ctx.author.id
-        await ctx.respond(f"現在のあなたのポイントは **{GamesCog.getpoint(id,point,False)}** です！")
+        name = ctx.author.name
+        await ctx.respond(f"現在のあなたのポイントは **{GamesCog.getpoint(id,name,-point)}** です！")
 
 def setup(bot):
     bot.add_cog(GamesCog(bot))
