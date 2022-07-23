@@ -8,6 +8,7 @@ TOKEN = os.getenv("TOKEN")
 
 path = "./cogs"
 
+
 @bot.event
 async def on_application_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
@@ -15,12 +16,12 @@ async def on_application_command_error(ctx, error):
     else:
         raise error
 
+
 @bot.event
 async def on_ready():
     print(f"Bot名:{bot.user} On ready!!")
 
 bot.load_extension('cogs.itudoko')
-bot.load_extension('cogs.others')
 bot.load_extension('cogs.superchat')
 
 bot.run(TOKEN)

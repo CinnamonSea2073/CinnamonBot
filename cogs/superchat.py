@@ -20,7 +20,7 @@ def getColor(money: int):
 class SuperChatCog(commands.Cog):
 
     def __init__(self, bot):
-        print('すぱちゃ初期化')
+        print('superchat init')
         self.bot = bot
         if os.path.exists(FILENAME):
             self.users = joblib.load(FILENAME)
@@ -59,4 +59,8 @@ class SuperChatCog(commands.Cog):
 
 
 def setup(bot):
+<<<<<<< HEAD
     bot.add_cog(SuperChatCog(bot))
+=======
+    bot.add_cog(SuperChatCog(bot))
+>>>>>>> 5ef4925835c343270859c3dee62fdbc5b199dac3
