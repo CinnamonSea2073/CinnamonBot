@@ -21,5 +21,6 @@ async def on_ready():
 
 bot.load_extension('cogs.itudoko')
 bot.load_extension('cogs.others')
+bot.load_extension('cogs.superchat')
 
 bot.run(TOKEN)

@@ -11,7 +11,7 @@ import requests
 class OthersCog(commands.Cog):
 
     def __init__(self, bot):
-        print('そのた初期化')
+        print('そのた初期化.')
         self.bot = bot
 
     #コマンドグループを定義っ！！！
