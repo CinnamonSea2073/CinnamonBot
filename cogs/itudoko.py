@@ -96,7 +96,7 @@ class ItudokoCog(commands.Cog):
             word=ItudokoCog.word(),
             lang='ja',
             loop=loop,
-            lang_codes=copy(ItudokoCog.lang_codes)
+            lang_codes=copy.copy(ItudokoCog.lang_codes)
         )
         await ctx.interaction.edit_original_message(content=f'翻訳前 : {ItudokoCog.word()}\n翻訳後 : {dest_word}')
 
