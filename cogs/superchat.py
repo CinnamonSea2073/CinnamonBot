@@ -59,8 +59,4 @@ class SuperChatCog(commands.Cog):
 
 
 def setup(bot):
-<<<<<<< HEAD
     bot.add_cog(SuperChatCog(bot))
-=======
-    bot.add_cog(SuperChatCog(bot))
->>>>>>> 5ef4925835c343270859c3dee62fdbc5b199dac3

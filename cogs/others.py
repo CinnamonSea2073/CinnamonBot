@@ -82,5 +82,14 @@ class OthersCog(commands.Cog):
         await ctx.respond(f"<@698127042977333248> {contents} ")
         await ctx.respond(embed=embed)
 
+    @others.command(name="code",description="コードをみやすくするよ")
+    async def code(
+        self,
+        ctx: discord.ApplicationContext,
+        code: Option(str, required=True, description="コード種類（pyなど）を書いてね", ),
+        contents: Option(str, required=True, description="コードを書いてね", )
+        ):
+        await ctx.respond(f"```{code}\n{contents}``` ")
+
 def setup(bot):
     bot.add_cog(OthersCog(bot))
