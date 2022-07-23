@@ -13,6 +13,9 @@ class ItudokoCog(commands.Cog):
         print('いつどこ初期化')
         self.bot = bot
 
+    with open('./itudoko.yaml', mode='rt', encoding='utf-8_sig') as file:
+        stack: list[list[str]] = yaml.unsafe_load(file)
+
     #ランダム抽出をここでやっちゃう作戦
     def word():
         with open('./itudoko.yaml', 'r',encoding="utf-8_sig") as f:
@@ -26,6 +29,10 @@ class ItudokoCog(commands.Cog):
         #randomwordが完成したランダム抽出
         return message
 
+    lang_codes: list[str] = ['en', 'it', 'ne', 'ko', 'de']
+
+    tr = Translator()
+
     itudoko_list = [
         OptionChoice(name='いつ', value='itu'),
         OptionChoice(name='どこで', value='dokode'),
@@ -33,6 +40,20 @@ class ItudokoCog(commands.Cog):
         OptionChoice(name='どのように', value='donoyouni'),
         OptionChoice(name='何をした', value='naniwosita')
     ]
+
+    def random_transe(word: str, lang: str, loop: int, lang_codes: list[str]) -> str:
+        if loop == 0:
+            return ItudokoCog.tr.translate(word, src=lang, dest='ja').text
+        else:
+            random.shuffle(lang_codes)
+            tmp_lang = lang_codes.pop()
+            return ItudokoCog.random_transe(
+                word=ItudokoCog.tr.translate(
+                    word, src=lang, dest=tmp_lang).text,
+                lang=tmp_lang,
+                loop=loop - 1,
+                lang_codes=lang_codes
+            )
 
     #コマンドグループを定義っ！！！
     itudoko = SlashCommandGroup('itudoko', 'test')
@@ -63,6 +84,21 @@ class ItudokoCog(commands.Cog):
             f.seek(0)
             yaml.dump(data, f,default_flow_style=False,allow_unicode=True)
         await ctx.respond(f"「いつ」に{content}を追加しました。")
+
+    @itudoko.command(name='trans', description='再翻訳で支離滅裂な文章に変換します')
+    async def itudokotrans(
+        self, 
+        ctx, 
+        loop: Option(int, description='再翻訳回数を上げて精度を低めます デフォルト loop=1', min_value=1, max_value=5, default=1, required=False)
+        ):
+        await ctx.respond(f'翻訳前 : {ItudokoCog.word()}')
+        dest_word = ItudokoCog.random_transe(
+            word=ItudokoCog.word(),
+            lang='ja',
+            loop=loop,
+            lang_codes=copy(ItudokoCog.lang_codes)
+        )
+        await ctx.interaction.edit_original_message(content=f'翻訳前 : {ItudokoCog.word()}\n翻訳後 : {dest_word}')
 
 def setup(bot):
     bot.add_cog(ItudokoCog(bot))

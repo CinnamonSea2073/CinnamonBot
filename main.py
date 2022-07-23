@@ -20,5 +20,6 @@ async def on_ready():
     print(f"Bot名:{bot.user} On ready!!")
 
 bot.load_extension('cogs.itudoko')
+bot.load_extension('cogs.others')
 
 bot.run(TOKEN)
