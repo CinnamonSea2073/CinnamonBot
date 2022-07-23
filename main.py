@@ -4,7 +4,8 @@ import os
 
 bot = commands.Bot(debug_guilds=[879288794560471050])
 load_dotenv()
-TOKEN = os.getenv("TOKEN")
+TOKEN = os.getenv('TOKEN')
+print (TOKEN)
 
 path = "./cogs"
 
@@ -21,7 +22,8 @@ async def on_application_command_error(ctx, error):
 async def on_ready():
     print(f"Bot名:{bot.user} On ready!!")
 
+bot.load_extension('cogs.others')
 bot.load_extension('cogs.itudoko')
-bot.load_extension('cogs.superchat')
+#bot.load_extension('cogs.superchat')
 
 bot.run(TOKEN)
