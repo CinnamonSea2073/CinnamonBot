@@ -83,7 +83,7 @@ class ItudokoCog(commands.Cog):
             print (data)
             f.seek(0)
             yaml.dump(data, f,default_flow_style=False,allow_unicode=True)
-        await ctx.respond(f"「いつ」に{content}を追加しました。")
+        await ctx.respond(f"{choice}に{content}を追加しました。")
 
     @itudoko.command(name='trans', description='再翻訳で支離滅裂な文章に変換します')
     async def itudokotrans(

@@ -8,6 +8,12 @@ import copy
 import os
 import requests
 
+users = dict()
+with open('./game.yaml', 'r', encoding="utf-8_sig") as f:
+    users = yaml.safe_load(f)
+
+    
+
 class GamesCog(commands.Cog):
 
     def __init__(self, bot):
@@ -19,35 +25,18 @@ class GamesCog(commands.Cog):
             data = yaml.safe_load(f)
             name = f"{name}s"
             data = data[name]
-            return "".join(data)
+            return data
 
-    def getpoint(name,newpoint,bool):
-        with open('./game.yaml', 'r+',encoding="utf-8_sig") as f:
-            data = yaml.safe_load(f)
-            #Discordidにsをつける
-            name = f"{name}s"
-            #その人のリストを参照
-            list = data[name]
-            #突っ込む前のポイントを参照
-            oldpoint = data[name]
-            #リストを文字列にする
-            oldpoint = "".join(oldpoint)
-            newpoint = "".join(newpoint)
-            print (oldpoint)
-            #計算する（int）
-            if bool == True:
-                point = int(newpoint) + int(oldpoint)
-            else:
-                point = int(oldpoint) - int(newpoint)
-            #python内で最初のデータに新しいポイントを突っ込む
-            list[0] = str(point)
-            print (list)
-            #突っ込んだものをyamlに突っ込む準備
-            data[name] = list
-            print (data)
-            f.seek(0)
-            yaml.dump(data, f,default_flow_style=False,allow_unicode=True)
-            return "".join(data[name])
+    def getpoint(id,point,is_sum):
+        global users
+        if id in users:
+            point += users[id]["point"]
+        name = users[id]["name"]
+        users[id] = {"name":name, "point":point}
+
+        with open('./game.yaml', 'w',encoding="utf-8_sig") as f:
+            yaml.dump(users, f,default_flow_style=False,allow_unicode=True)
+            return str(users[id]["point"])
 
 
     #コマンドグループを定義っ！！！

@@ -91,5 +91,21 @@ class OthersCog(commands.Cog):
         ):
         await ctx.respond(f"```{code}\n{contents}``` ")
 
+    @others.command(name="github",description="このボットのコードだよ")
+    async def github(
+        self,
+        ctx: discord.ApplicationContext,
+        ):
+        embed = discord.Embed( # Embedを定義する
+                          title="Github - CinnamonBot",# タイトル
+                          color=0x1e90ff, # フレーム色指定(今回は緑)
+                          description="https://github.com/CinnamonSea2073/CinnamonBot", # Embedの説明文 必要に応じて
+                          )
+
+        embed.set_footer(text="made by CinnamonSea2073", # フッターには開発者の情報でも入れてみる
+                     icon_url="https://images-ext-2.discordapp.net/external/2FdKTBe_yKt6m5hYRdiTAkO0i0HVPkGDOF7lkxN6nO8/%3Fsize%3D128%26overlay/https/crafatar.com/avatars/5d3e654c29bb4ae59e3a5df78372597b.png")
+
+        await ctx.respond(embed=embed)
+
 def setup(bot):
     bot.add_cog(OthersCog(bot))
