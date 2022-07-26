@@ -91,14 +91,14 @@ class ItudokoCog(commands.Cog):
         ctx, 
         loop: Option(int, description='再翻訳回数を上げて精度を低めます デフォルト loop=1', min_value=1, max_value=5, default=1, required=False)
         ):
-        await ctx.respond(f'翻訳前 : {ItudokoCog.word()}')
+        await ctx.respond(f'翻訳前 : \n{ItudokoCog.word()}')
         dest_word = ItudokoCog.random_transe(
             word=ItudokoCog.word(),
             lang='ja',
             loop=loop,
-            lang_codes=copy(ItudokoCog.lang_codes)
+            lang_codes=copy.copy(ItudokoCog.lang_codes)
         )
-        await ctx.interaction.edit_original_message(content=f'翻訳前 : {ItudokoCog.word()}\n翻訳後 : {dest_word}')
+        await ctx.interaction.edit_original_message(content=f'翻訳前 : {ItudokoCog.word()}\n翻訳後 : \n{dest_word}')
 
 def setup(bot):
     bot.add_cog(ItudokoCog(bot))
