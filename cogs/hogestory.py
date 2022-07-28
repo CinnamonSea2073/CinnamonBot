@@ -1,3 +1,5 @@
+from tracemalloc import stop
+from turtle import st
 import yaml
 import discord
 from discord.ext import commands
@@ -5,7 +7,10 @@ from discord import Option, OptionChoice, SlashCommandGroup
 from googletrans import Translator
 import random
 import copy
-import os
+
+path = './hogestory.yaml'
+encode = 'utf-8_sig'
+
 
 class HogestoryCog(commands.Cog):
 
@@ -13,19 +18,16 @@ class HogestoryCog(commands.Cog):
         print('謎ストーリー初期化')
         self.bot = bot
 
-    with open('./hogestory.yaml', mode='rt', encoding='utf-8_sig') as file:
-        stack: list[list[str]] = yaml.unsafe_load(file)
+    # yamlを読み込んでlistで返却します
+    def read_yaml() -> list[str]:
+        with open(path, 'r', encoding=encode) as f:
+            return (yaml.safe_load(f))['story']
 
-    #ランダム抽出をここでやっちゃう作戦
-    def word(shuffle):
-        with open('./hogestory.yaml', 'r',encoding="utf-8_sig") as f:
-            data = yaml.unsafe_load(f)
-            hogehoge = data['story']
-            if shuffle == True:
-                hogehoge = random.sample(hogehoge, len(hogehoge))
-            #randomwordが完成したシャッフル
-            hoge = ''.join(hogehoge)
-        return hoge
+    # ymalに一次配列のlistを上書きします
+    def write_yaml(story: list[str]):
+        with open(path, 'w', encoding=encode) as f:
+            yaml.dump({'story': story}, f,
+                      default_flow_style=False, allow_unicode=True)
 
     lang_codes: list[str] = ['en', 'it', 'ne', 'ko', 'de']
 
@@ -47,86 +49,85 @@ class HogestoryCog(commands.Cog):
                 lang_codes=lang_codes
             )
 
-    #コマンドグループを定義っ！！！
+    # コマンドグループを定義っ！！！
     story = SlashCommandGroup('story', 'test')
 
-    @story.command(name="get",description="謎の物語を表示します")
+    @story.command(name="get", description="謎の物語を表示します")
     async def story_get(
             self,
             ctx: discord.ApplicationContext,
-            ):
-        embed = discord.Embed(color=0x1e90ff,description=HogestoryCog.word(shuffle=False))
-        embed.set_footer(text="made by CinnamonSea2073",icon_url=HogestoryCog.icon)
+    ):
+        embed = discord.Embed(
+            color=0x1e90ff, description="".join(HogestoryCog.read_yaml()))
+        embed.set_footer(text="made by CinnamonSea2073",
+                         icon_url=HogestoryCog.icon)
         await ctx.respond(embed=embed)
 
-    #いつどこランダム排出
-    @story.command(name="shuffle",description="謎の物語をシャッフルします")
+    # いつどこランダム排出
+    @story.command(name="shuffle", description="謎の物語をシャッフルします")
     async def story_shuffle(
             self,
             ctx: discord.ApplicationContext,
-            ):
-        embed = discord.Embed(color=0x1e90ff,description=HogestoryCog.word(shuffle=True))
-        embed.set_footer(text="made by CinnamonSea2073",icon_url=HogestoryCog.icon)
+    ):
+        story = HogestoryCog.read_yaml()
+        random.shuffle(story)
+        embed = discord.Embed(
+            color=0x1e90ff, description=''.join(story))
+        embed.set_footer(text="made by CinnamonSea2073",
+                         icon_url=HogestoryCog.icon)
         await ctx.respond(embed=embed)
 
-    @story.command(name="set",description="謎の物語に文章を追加します。最初に「ところで」や「しかし」など接続詞をいれるとランダム抽出でいい感じになります。")
+    @story.command(name="set", description="謎の物語に文章を追加します。最初に「ところで」や「しかし」など接続詞をいれるとランダム抽出でいい感じになります。")
     async def story_set(
         self,
         ctx: discord.ApplicationContext,
         content: Option(str, required=True, description="追加する文章（短いほうが面白いです）を設定してください。最初に「ところで」や「しかし」など接続詞をいれるとランダム抽出でいい感じになります。", ),
-        ):
+    ):
 
-        with open('./hogestory.yaml', 'r+',encoding="utf-8_sig") as f:
-            data = yaml.safe_load(f)
-            hogedata = data['story']
-            hogedata.append(content)
-            print (hogedata)
-            data['story'] = hogedata
-            print (data)
-            f.seek(0)
-            yaml.dump(data, f,default_flow_style=False,allow_unicode=True)
-        embed = discord.Embed(color=0x1e90ff,description=f"{content}を追加しました。")
-        embed.set_footer(text="made by CinnamonSea2073",icon_url=HogestoryCog.icon)
+        hogedata = HogestoryCog.read_yaml()
+        hogedata.append(content)
+        HogestoryCog.write_yaml(hogedata)
+
+        embed = discord.Embed(color=0x1e90ff, description=f"{content}を追加しました。")
+        embed.set_footer(text="made by CinnamonSea2073",
+                         icon_url=HogestoryCog.icon)
         await ctx.respond(embed=embed)
 
-    @story.command(name="remove",description="謎の物語から文章を削除します。")
+    @story.command(name="remove", description="謎の物語から文章を削除します。")
     async def story_remove(
         self,
         ctx: discord.ApplicationContext,
         content: Option(str, required=True, description="削除する文章を設定してください。", ),
-        ):
+    ):
+        story = HogestoryCog.read_yaml()
+        result = f'{content}はストーリーに含まれていません'
 
-        with open('./hogestory.yaml', 'r+',encoding="utf-8_sig") as f:
-            data = yaml.safe_load(f)
-            hogedata = data['story']
-            if content in hogedata:
-                hogedata.remove(content)
-            else:
-                embed = discord.Embed(color=0x1e90ff,description=f"{content}は文章に存在しません。")
-                embed.set_footer(text="made by CinnamonSea2073",icon_url=HogestoryCog.icon)
-                await ctx.respond(embed=embed)
-            data['story'] = hogedata
-            print(data)
-            f.seek(0)
-            yaml.dump(data, f,default_flow_style=False,allow_unicode=True)
-        embed = discord.Embed(color=0x1e90ff,description=f"処理が完了しました。")
-        embed.set_footer(text="made by CinnamonSea2073",icon_url=HogestoryCog.icon)
+        if content in story:
+            story.remove[content]
+            result = "処理が完了しました"
+
+        embed = discord.Embed(color=0x1e90ff, description=result)
+        embed.set_footer(text="made by CinnamonSea2073",
+                         icon_url=HogestoryCog.icon)
         await ctx.respond(embed=embed)
 
     @story.command(name='trans', description='謎の物語を再翻訳で支離滅裂な文章に変換します')
     async def storytrans(
-        self, 
-        ctx, 
-        loop: Option(int, description='再翻訳回数を上げて精度を低めます デフォルト loop=1', min_value=1, max_value=5, default=1, required=False)
-        ):
-        await ctx.respond(f'翻訳前 : {HogestoryCog.word()}')
+        self,
+        ctx,
+        loop: Option(int, description='再翻訳回数を上げて精度を低めます デフォルト loop=1',
+                     min_value=1, max_value=5, default=1, required=False)
+    ):
+        story = ''.join(HogestoryCog.read_yaml())
+        await ctx.respond(f'翻訳前 :\n{story}')
         dest_word = HogestoryCog.random_transe(
-            word=HogestoryCog.word(shuffle=True),
+            word=story,
             lang='ja',
             loop=loop,
-            lang_codes=copy(HogestoryCog.lang_codes)
+            lang_codes=copy.copy(HogestoryCog.lang_codes)
         )
-        await ctx.interaction.edit_original_message(content=f'翻訳前 : {HogestoryCog.word()}\n翻訳後 : {dest_word}')
+        await ctx.interaction.edit_original_message(content=f'翻訳前 :\n{story}\n翻訳後 :\n{dest_word}')
+
 
 def setup(bot):
     bot.add_cog(HogestoryCog(bot))
