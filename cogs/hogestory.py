@@ -17,17 +17,14 @@ class HogestoryCog(commands.Cog):
         stack: list[list[str]] = yaml.unsafe_load(file)
 
     #ランダム抽出をここでやっちゃう作戦
-    def word():
+    def word(shuffle):
         with open('./hogestory.yaml', 'r',encoding="utf-8_sig") as f:
             data = yaml.unsafe_load(f)
             hogehoge = data['story']
-            #printに頼りすぎわろた
-            print(hogehoge)
-            hogestory = random.sample(hogehoge, len(hogehoge))
-            print(hogestory)
+            if shuffle == True:
+                hogehoge = random.sample(hogehoge, len(hogehoge))
             #randomwordが完成したシャッフル
-            hoge = ''.join(hogestory)
-            print(hoge)
+            hoge = ''.join(hogehoge)
         return hoge
 
     lang_codes: list[str] = ['en', 'it', 'ne', 'ko', 'de']
@@ -51,13 +48,20 @@ class HogestoryCog(commands.Cog):
     #コマンドグループを定義っ！！！
     story = SlashCommandGroup('story', 'test')
 
-    #いつどこランダム排出
-    @story.command(name="get",description="謎の物語をランダムで排出します")
+    @story.command(name="get",description="謎の物語を表示します")
     async def story_get(
             self,
             ctx: discord.ApplicationContext,
             ):
-        await ctx.respond(HogestoryCog.word())
+        await ctx.respond(HogestoryCog.word(shuffle=False))
+
+    #いつどこランダム排出
+    @story.command(name="shuffle",description="謎の物語をシャッフルします")
+    async def story_shuffle(
+            self,
+            ctx: discord.ApplicationContext,
+            ):
+        await ctx.respond(HogestoryCog.word(shuffle=True))
 
     @story.command(name="set",description="謎の物語に文章を追加します。最初に「ところで」や「しかし」など接続詞をいれるとランダム抽出でいい感じになります。")
     async def story_set(
@@ -85,7 +89,7 @@ class HogestoryCog(commands.Cog):
         ):
         await ctx.respond(f'翻訳前 : {HogestoryCog.word()}')
         dest_word = HogestoryCog.random_transe(
-            word=HogestoryCog.word(),
+            word=HogestoryCog.word(shuffle=True),
             lang='ja',
             loop=loop,
             lang_codes=copy(HogestoryCog.lang_codes)
