@@ -31,6 +31,8 @@ class HogestoryCog(commands.Cog):
 
     tr = Translator()
 
+    icon = "https://images-ext-2.discordapp.net/external/2FdKTBe_yKt6m5hYRdiTAkO0i0HVPkGDOF7lkxN6nO8/%3Fsize%3D128%26overlay/https/crafatar.com/avatars/5d3e654c29bb4ae59e3a5df78372597b.png"
+
     def random_transe(word: str, lang: str, loop: int, lang_codes: list[str]) -> str:
         if loop == 0:
             return HogestoryCog.tr.translate(word, src=lang, dest='ja').text
@@ -53,7 +55,9 @@ class HogestoryCog(commands.Cog):
             self,
             ctx: discord.ApplicationContext,
             ):
-        await ctx.respond(HogestoryCog.word(shuffle=False))
+        embed = discord.Embed(color=0x1e90ff,description=HogestoryCog.word(shuffle=False))
+        embed.set_footer(text="made by CinnamonSea2073",icon_url=HogestoryCog.icon)
+        await ctx.respond(embed=embed)
 
     #いつどこランダム排出
     @story.command(name="shuffle",description="謎の物語をシャッフルします")
@@ -61,7 +65,9 @@ class HogestoryCog(commands.Cog):
             self,
             ctx: discord.ApplicationContext,
             ):
-        await ctx.respond(HogestoryCog.word(shuffle=True))
+        embed = discord.Embed(color=0x1e90ff,description=HogestoryCog.word(shuffle=True))
+        embed.set_footer(text="made by CinnamonSea2073",icon_url=HogestoryCog.icon)
+        await ctx.respond(embed=embed)
 
     @story.command(name="set",description="謎の物語に文章を追加します。最初に「ところで」や「しかし」など接続詞をいれるとランダム抽出でいい感じになります。")
     async def story_set(
@@ -79,7 +85,33 @@ class HogestoryCog(commands.Cog):
             print (data)
             f.seek(0)
             yaml.dump(data, f,default_flow_style=False,allow_unicode=True)
-        await ctx.respond(f"{content}を追加しました。")
+        embed = discord.Embed(color=0x1e90ff,description=f"{content}を追加しました。")
+        embed.set_footer(text="made by CinnamonSea2073",icon_url=HogestoryCog.icon)
+        await ctx.respond(embed=embed)
+
+    @story.command(name="remove",description="謎の物語から文章を削除します。")
+    async def story_remove(
+        self,
+        ctx: discord.ApplicationContext,
+        content: Option(str, required=True, description="削除する文章を設定してください。", ),
+        ):
+
+        with open('./hogestory.yaml', 'r+',encoding="utf-8_sig") as f:
+            data = yaml.safe_load(f)
+            hogedata = data['story']
+            if content in hogedata:
+                hogedata.remove(content)
+            else:
+                embed = discord.Embed(color=0x1e90ff,description=f"{content}は文章に存在しません。")
+                embed.set_footer(text="made by CinnamonSea2073",icon_url=HogestoryCog.icon)
+                await ctx.respond(embed=embed)
+            data['story'] = hogedata
+            print(data)
+            f.seek(0)
+            yaml.dump(data, f,default_flow_style=False,allow_unicode=True)
+        embed = discord.Embed(color=0x1e90ff,description=f"処理が完了しました。")
+        embed.set_footer(text="made by CinnamonSea2073",icon_url=HogestoryCog.icon)
+        await ctx.respond(embed=embed)
 
     @story.command(name='trans', description='謎の物語を再翻訳で支離滅裂な文章に変換します')
     async def storytrans(
