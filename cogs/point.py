@@ -1,3 +1,4 @@
+from telnetlib import GA
 import yaml
 import discord
 from discord.ext import commands
@@ -9,7 +10,9 @@ import os
 import requests
 import urllib
 import json
+import numpy
 
+np = numpy
 users = dict()
 words = dict()
 with open('./game.yaml', 'r', encoding="utf-8_sig") as f:
@@ -36,7 +39,7 @@ class GamesCog(commands.Cog):
     def point(id, name):
         global users
         if id not in users:
-            users[id] = {"name":name, "point":100}
+            users[id] = {"name":name, "point":100, "top":0}
             with open('./game.yaml', 'w',encoding="utf-8_sig") as f:
                 yaml.dump(users, f,default_flow_style=False,allow_unicode=True)
         return users[id]["point"] 
@@ -45,13 +48,41 @@ class GamesCog(commands.Cog):
         global users
         if id in users:
             point += users[id]["point"]
+            top = users[id]["top"]
         else:
             point += 100
-        users[id] = {"name":name, "point":point}
+            top = 0
+        users[id] = {"name":name, "point":point, "top":top}
 
         with open('./game.yaml', 'w',encoding="utf-8_sig") as f:
             yaml.dump(users, f,default_flow_style=False,allow_unicode=True)
         return str(users[id]["point"])
+
+    def genshinliset(id,name,top):
+        global users
+        print(top)
+        if id not in users:
+            users[id] = {"name":name, "point":100, "top":top}
+        else:
+            users[id] = {"name":name, "point":users[id]["point"], "top":top}
+        with open('./game.yaml', 'w',encoding="utf-8_sig") as f:
+            yaml.dump(users, f,default_flow_style=False,allow_unicode=True)
+        return 
+
+    def genshinget(id,name):
+        global users
+        top = 1
+        if id in users:
+            top += users[id]["top"]
+            point = users[id]["point"]
+        else:
+            top += 0
+            point = 100
+        users[id] = {"name":name, "point":point, "top":top}
+
+        with open('./game.yaml', 'w',encoding="utf-8_sig") as f:
+            yaml.dump(users, f,default_flow_style=False,allow_unicode=True)
+        return int(top)
 
     def genshingen(name):
         global words
@@ -112,6 +143,65 @@ class GamesCog(commands.Cog):
         embed.set_image(url=picture)
         embed.set_footer(text="made by CinnamonSea2073",icon_url=GamesCog.icon)
         await ctx.respond(embed=embed)
+
+    @games.command(name="genshinwish",description="原神ガチャシミュレーター")
+    async def genshinwish(
+        self,
+        ctx: discord.ApplicationContext,
+        ):
+        id = ctx.author.id
+        name = ctx.author.name
+        resalt = GamesCog.genshinget(id,name)
+        if resalt < 9:
+            p = False
+            s = False
+        elif resalt == 9:
+            p = True
+            s = False
+        elif resalt < 18:
+            p = False
+            s = True
+        elif resalt == 18:
+            p = True
+            s = True
+        
+        #randomresalt = []
+        if s == False and p == False:
+            randomresalt = np.random.choice(["3","4","5","6"], size=9, p=[0.943,0.051,0.003,0.003])
+            randomresalt = randomresalt.tolist()
+            randomresalt.append("4")
+            await ctx.respond(randomresalt)
+            if "4" in any(randomresalt):
+                print("hoge")
+                GamesCog.genshinliset(id,name,9) 
+            elif "6" == any(randomresalt):
+                GamesCog.genshinliset(id,name,0)      
+        elif s == False and p == True:
+            randomresalt = np.random.choice(["3","4","5","6"], size=9, p=[0.943,0.051,0.003,0.003])
+            randomresalt = randomresalt.tolist()
+            srinuke = np.random.choice(["5","6"], size=1, p=[0.5,0.5])
+            srinuke = srinuke.tolist()
+            randomresalt.append("".join(srinuke))
+            if "5" == any(randomresalt):
+                GamesCog.genshinliset(id,name,9) 
+            elif "6" == any(randomresalt):
+                GamesCog.genshinliset(id,name,0)   
+        if s == True and p == False:
+            randomresalt = np.random.choice(["3","4","6"], size=9, p=[0.943,0.051,0.006])
+            randomresalt = randomresalt.tolist()
+            randomresalt.append("4")
+            if "6" == any(randomresalt):
+                GamesCog.genshinliset(id,name,0)      
+        elif s == True and p == True:
+            randomresalt = np.random.choice(["3","4","5","6"], size=9, p=[0.943,0.051,0.003,0.003])
+            randomresalt = randomresalt.tolist()
+            randomresalt.append("6")
+            if "5" == any(randomresalt):
+                GamesCog.genshinliset(id,name,0) 
+            elif "6" == any(randomresalt):
+                GamesCog.genshinliset(id,name,0) 
+
+        await ctx.respond(randomresalt)    
 
 def setup(bot):
     bot.add_cog(GamesCog(bot))
