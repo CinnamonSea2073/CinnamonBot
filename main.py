@@ -5,7 +5,7 @@ import os
 bot = commands.Bot(debug_guilds=[879288794560471050])
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
-print (TOKEN)
+print(TOKEN)
 
 path = "./cogs"
 
@@ -26,6 +26,6 @@ bot.load_extension('cogs.others')
 bot.load_extension('cogs.itudoko')
 bot.load_extension('cogs.point')
 bot.load_extension('cogs.hogestory')
-#bot.load_extension('cogs.superchat')
+bot.load_extension('cogs.superchat')
 
 bot.run(TOKEN)
