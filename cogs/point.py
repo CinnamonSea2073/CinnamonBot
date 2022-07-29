@@ -7,6 +7,7 @@ import random
 import copy
 import os
 import requests
+import urllib
 
 users = dict()
 with open('./game.yaml', 'r', encoding="utf-8_sig") as f:
@@ -40,6 +41,13 @@ class GamesCog(commands.Cog):
             yaml.dump(users, f,default_flow_style=False,allow_unicode=True)
         return str(users[id]["point"])
 
+    def genshin(name):
+        print(name)
+        s_quote = urllib.parse.quote(name)
+        print (s_quote)
+        return f"https://bbs.hoyolab.com/hoyowiki/picture/character/{s_quote}/avatar.png"
+
+    icon = "https://images-ext-2.discordapp.net/external/2FdKTBe_yKt6m5hYRdiTAkO0i0HVPkGDOF7lkxN6nO8/%3Fsize%3D128%26overlay/https/crafatar.com/avatars/5d3e654c29bb4ae59e3a5df78372597b.png"
 
     #コマンドグループを定義っ！！！
     games = SlashCommandGroup('game', 'test')
@@ -73,6 +81,21 @@ class GamesCog(commands.Cog):
         id = ctx.author.id
         name = ctx.author.name
         await ctx.respond(f"現在のあなたのポイントは **{GamesCog.getpoint(id,name,-point)}** です！")
+
+    @games.command(name="genshin",description="ガチャシミュレーター実装前テストコマンド")
+    async def genshin(
+        self,
+        ctx: discord.ApplicationContext,
+        content: Option(str, required=True, description="キャラ名", )
+        ):
+        print(content)
+        picture = GamesCog.genshin(content)
+        print(picture)
+        embed = discord.Embed(title=content,color=0x1e90ff,)
+        embed.set_image(url=picture)
+        embed.set_footer(text="made by CinnamonSea2073",
+                         icon_url=GamesCog.icon)
+        await ctx.respond(embed=embed)
 
 def setup(bot):
     bot.add_cog(GamesCog(bot))
