@@ -103,7 +103,8 @@ class HogestoryCog(commands.Cog):
         result = f'{content}はストーリーに含まれていません'
 
         if content in story:
-            story.remove[content]
+            story.remove(content)
+            HogestoryCog.write_yaml(story)
             result = "処理が完了しました"
 
         embed = discord.Embed(color=0x1e90ff, description=result)
