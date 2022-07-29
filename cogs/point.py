@@ -8,12 +8,24 @@ import copy
 import os
 import requests
 import urllib
+import json
 
 users = dict()
+words = dict()
 with open('./game.yaml', 'r', encoding="utf-8_sig") as f:
         tmp = yaml.safe_load(f)
         if tmp != None:
             users = tmp
+
+with open('./genshin.yaml', 'r', encoding="utf-8_sig") as e:
+        etmp = yaml.safe_load(e)
+        if etmp != None:
+            words = etmp
+        
+with open('./genshinH.yaml', 'r', encoding="utf-8_sig") as b:
+        btmp = yaml.safe_load(b)
+        if btmp != None:
+            jhwords = btmp
 
 class GamesCog(commands.Cog):
 
@@ -41,11 +53,16 @@ class GamesCog(commands.Cog):
             yaml.dump(users, f,default_flow_style=False,allow_unicode=True)
         return str(users[id]["point"])
 
-    def genshin(name):
-        print(name)
-        s_quote = urllib.parse.quote(name)
-        print (s_quote)
-        return f"https://bbs.hoyolab.com/hoyowiki/picture/character/{s_quote}/avatar.png"
+    def genshingen(name):
+        global words
+        global jhwords
+        if name in words:
+            resalt = urllib.parse.quote(words[name]["zh"])
+        elif name in jhwords:
+            resalt = urllib.parse.quote(words[jhwords[name]["ja"]]["zh"])
+        else:
+            resalt = None
+        return f"https://bbs.hoyolab.com/hoyowiki/picture/character/{resalt}/avatar.png"
 
     icon = "https://images-ext-2.discordapp.net/external/2FdKTBe_yKt6m5hYRdiTAkO0i0HVPkGDOF7lkxN6nO8/%3Fsize%3D128%26overlay/https/crafatar.com/avatars/5d3e654c29bb4ae59e3a5df78372597b.png"
 
@@ -86,15 +103,14 @@ class GamesCog(commands.Cog):
     async def genshin(
         self,
         ctx: discord.ApplicationContext,
-        content: Option(str, required=True, description="キャラ名", )
+        content: Option(str, required=True, description="キャラ名（ひらかなでもおｋ）", )
         ):
-        print(content)
-        picture = GamesCog.genshin(content)
-        print(picture)
+        picture = GamesCog.genshingen(content)
+        if picture == "https://bbs.hoyolab.com/hoyowiki/picture/character/None/avatar.png":
+            content = f" \"{content}\" は原神データベースに存在しません。"
         embed = discord.Embed(title=content,color=0x1e90ff,)
         embed.set_image(url=picture)
-        embed.set_footer(text="made by CinnamonSea2073",
-                         icon_url=GamesCog.icon)
+        embed.set_footer(text="made by CinnamonSea2073",icon_url=GamesCog.icon)
         await ctx.respond(embed=embed)
 
 def setup(bot):
