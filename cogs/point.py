@@ -181,7 +181,7 @@ class GamesCog(commands.Cog):
     async def genshinwish(
         self,
         ctx: discord.ApplicationContext,
-        skip: Option(str, choices=Skip_list, required=True, description="流れ星演出のスキップをするかどうか（書かない場合はスキップしない）")
+        skip: Option(bool, choices=Skip_list, required=True, description="流れ星演出のスキップをするかどうか（書かない場合はスキップしない）")
         ):
         #何か送信しないと応答なしと判断されてエラーを吐くので一応
         await ctx.respond("処理を開始中...")
@@ -282,7 +282,7 @@ class GamesCog(commands.Cog):
             else:
                 direction_embed = GamesCog.embeded(None,None,"https://c.tenor.com/pVzBgcp1RPQAAAAC/genshin-impact-animation.gif")
                 msg = await ctx.send(embed=direction_embed) 
-            await asyncio.sleep(5.9)
+            await asyncio.sleep(5)
         await ctx.send("処理完了")
 
         #ガチャ演出のgifを貼ったEmbedを編集します。
@@ -331,7 +331,7 @@ class GamesCog(commands.Cog):
         else:
             resalt_per = per*100
         embed = discord.Embed(title="ガチャ結果",color=0x1e90ff,)
-        embed.add_field(name=f"ガチャを引いた回数：{resalt*10}\n今回のガチャの★5確率：{resalt_per}%\n",value="\n".join(final_result))
+        embed.add_field(name=f"ガチャを引いた回数：{resalt*10}\n使った金額：約{resalt*1600*2}円\n今回のガチャの★5確率：{resalt_per}%\n=====================",value="\n".join(final_result))
         embed.set_footer(text="made by CinnamonSea2073",
                          icon_url=GamesCog.icon)
         await ctx.respond(embed=embed)
