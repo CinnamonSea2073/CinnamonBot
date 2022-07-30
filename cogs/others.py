@@ -89,7 +89,8 @@ class OthersCog(commands.Cog):
         code: Option(str, required=True, description="コード種類（pyなど）を書いてね", ),
         contents: Option(str, required=True, description="コードを書いてね", )
         ):
-        await ctx.respond(f"```{code}\n{contents.replace('\\n', '\n')}``` ")
+        contents = contents.replace("\\n", "\n")
+        await ctx.respond(f"```{code}\n{contents}``` ")
 
     @others.command(name="github",description="このボットのコードだよ")
     async def github(
