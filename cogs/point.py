@@ -124,8 +124,8 @@ class GamesCog(commands.Cog):
         return random.choice(sters[name])
 
     Skip_list = [
-        OptionChoice(name='ガチャ演出をスキップする', value=True),
-        OptionChoice(name='ガチャ演出をスキップしない', value=False)
+        OptionChoice(name='ガチャ演出をスキップする', value=1),
+        OptionChoice(name='ガチャ演出をスキップしない', value=0)
     ]
 
     icon = "https://images-ext-2.discordapp.net/external/2FdKTBe_yKt6m5hYRdiTAkO0i0HVPkGDOF7lkxN6nO8/%3Fsize%3D128%26overlay/https/crafatar.com/avatars/5d3e654c29bb4ae59e3a5df78372597b.png"
@@ -181,14 +181,14 @@ class GamesCog(commands.Cog):
     async def genshinwish(
         self,
         ctx: discord.ApplicationContext,
-        skip: Option(bool, choices=Skip_list, required=True, description="流れ星演出のスキップをするかどうか（書かない場合はスキップしない）")
+        skip: Option(int, choices=Skip_list, required=False, description="流れ星演出のスキップをするかどうか（書かない場合はスキップしない）")
         ):
         #何か送信しないと応答なしと判断されてエラーを吐くので一応
         await ctx.respond("処理を開始中...")
 
         #skipに何も入ってなかったらとりあえずFalse突っ込んでおこうね
         if skip == None:
-            skip = False
+            skip = 0
 
         #天井カウントを読み込みます。resaltが送信者の天井カウントです。
         await ctx.send("天井カウント処理中...")
@@ -274,7 +274,7 @@ class GamesCog(commands.Cog):
 
         #ここで結果ごとにガチャ演出をさせ、ガチャ演出後に次の処理が行われるよう非同期sleepさせます。
         #skipがTrueの場合は飛ばします。
-        if skip == False:
+        if skip == 0:
             await ctx.send("ガチャ結果による分岐処理中...")
             if "5" in randomresalt or "6" in randomresalt:
                 direction_embed = GamesCog.embeded(None,None,"https://c.tenor.com/rOuL0G1uRpMAAAAC/genshin-impact-pull.gif")
@@ -289,7 +289,7 @@ class GamesCog(commands.Cog):
         #skipがTrueだと演出gifを貼ったEmbedがないので普通に送信します。
         resalt_embed = discord.Embed(title="ガチャ10連結果",color=0xff5254,)
         resalt_embed.set_footer(text="made by CinnamonSea2073",icon_url=GamesCog.icon)
-        if skip == False:
+        if skip == 0:
             await msg.edit(embed=resalt_embed)
         else:
             await ctx.send(embed=resalt_embed)
