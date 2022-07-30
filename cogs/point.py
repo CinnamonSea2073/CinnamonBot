@@ -206,35 +206,69 @@ class GamesCog(commands.Cog):
         #次に確率です。天井システムを考慮したうえで、10連分の結果をrandomresalt[]として出します。
         #結果によっては天井カウントをリセットさせます。
         await ctx.send("ガチャ結果を処理中...")
+        randomresalt = []
         if resalt < 9:
             #完全に何も出していない状態での初期確率。確定で4を追加。
-            randomresalt = np.random.choice(["3","4","5","6"], size=9, p=[three,0.051,five,five])
-            randomresalt = randomresalt.tolist()
+            for num in range(9):
+                tmpresalt = np.random.choice(["3","4","5","6"], p=[three,0.051,five,five])
+                randomresalt.append(tmpresalt.tolist())
+                print(randomresalt)
+                if "5" in randomresalt:
+                    GamesCog.genshinliset(id,name,9) 
+                    per = 0.006
+                    three = 1 - per - 0.051
+                    five = per / 2
+                elif "6" in randomresalt:
+                    GamesCog.genshinliset(id,name,0)
+                    per = 0.006  
+                    three = 1 - per - 0.051
+                    five = per / 2
             randomresalt.append("4")
-            if "5" in randomresalt:
-                GamesCog.genshinliset(id,name,9) 
-            elif "6" in randomresalt:
-                GamesCog.genshinliset(id,name,0)      
         elif resalt == 9:
             #一度目の天井に達した確率。2/1の確率で5か6を追加。6の場合天井リセット。
-            randomresalt = np.random.choice(["3","4","5","6"], size=9, p=[three,0.051,five,five])
-            randomresalt = randomresalt.tolist()
+            for num in range(9):
+                tmpresalt = np.random.choice(["3","4","5","6"], p=[three,0.051,five,five])
+                randomresalt.append(tmpresalt.tolist())
+                print(randomresalt)
+                if "5" in randomresalt:
+                    per = 0.006
+                    three = 1 - per - 0.051
+                    five = per / 2
+                elif "6" in randomresalt:
+                    GamesCog.genshinliset(id,name,0)
+                    per = 0.006 
+                    three = 1 - per - 0.051
+                    five = per / 2
+            randomresalt.append("4")
             srinuke = np.random.choice(["5","6"], size=1, p=[0.5,0.5])
             srinuke = srinuke.tolist()
             randomresalt.append("".join(srinuke))
-            if "6" in randomresalt:
-                GamesCog.genshinliset(id,name,0)   
         elif resalt < 18:
-            #一度目の天井以降の確率。確定で4を追加。5は出ない。6の場合天井リセット。
-            randomresalt = np.random.choice(["3","4","6"], size=9, p=[three,0.051,per])
-            randomresalt = randomresalt.tolist()
+            #一度目の天井以降の確率。確定で4を追加。5は出ない。6の場合天井と確率リセット。
+            for num in range(9):
+                tmpresalt = np.random.choice(["3","4","6"], p=[three,0.051,per])
+                randomresalt.append(tmpresalt.tolist())
+                print(randomresalt)
+                if "6" in randomresalt:
+                    GamesCog.genshinliset(id,name,0)
+                    per = 0.006
+                    three = 1 - per - 0.051
             randomresalt.append("4")
-            if "6" in randomresalt:
-                GamesCog.genshinliset(id,name,0)      
         elif resalt == 18:
             #二度目の天井の確率。確定で6を追加。その他の確率は初期確率と同率。ついでに天井リセット。
-            randomresalt = np.random.choice(["3","4","5","6"], size=9, p=[three,0.051,five,five])
-            randomresalt = randomresalt.tolist()
+            for num in range(9):
+                tmpresalt = np.random.choice(["3","4","5","6"], p=[three,0.051,five,five])
+                randomresalt.append(tmpresalt.tolist())
+                print(randomresalt)
+                if "5" in randomresalt:
+                    per = 0.006
+                    three = 1 - per - 0.051
+                    five = per / 2
+                elif "6" in randomresalt:
+                    GamesCog.genshinliset(id,name,0)
+                    per = 0.006 
+                    three = 1 - per - 0.051
+                    five = per / 2
             randomresalt.append("6")
             GamesCog.genshinliset(id,name,0) 
 
