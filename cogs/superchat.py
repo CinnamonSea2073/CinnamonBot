@@ -59,6 +59,8 @@ class SuperChatCog(commands.Cog):
             color=getColor(money=money),
             description=message,
         )
+        if self.users.get(ctx.author.id) == None :
+            await ctx.respond(f"<@{ctx.author.id}> /superchat set で登録してください。")
         embed.set_author(name=ctx.author.name, icon_url=self.users.get(ctx.author.id))
         await ctx.respond(embed=embed)
 
