@@ -232,11 +232,11 @@ class GamesCog(commands.Cog):
 
         #ここで結果ごとにガチャ演出をさせ、ガチャ演出後に次の処理が行われるよう非同期sleepさせます。
         await ctx.send("ガチャ結果処理中...")
-        if "5" in randomresalt and "6" in randomresalt:
-            direction_embed = GamesCog.embeded(None,None,"https://c.tenor.com/rOuL0G1uRpMAAAAd/genshin-impact-pull.gif")
+        if "5" in randomresalt or "6" in randomresalt:
+            direction_embed = GamesCog.embeded(None,None,"https://c.tenor.com/rOuL0G1uRpMAAAAC/genshin-impact-pull.gif")
             msg = await ctx.send(embed=direction_embed) 
         else:
-            direction_embed = GamesCog.embeded(None,None,"https://c.tenor.com/pVzBgcp1RPQAAAAd/genshin-impact-animation.gif")
+            direction_embed = GamesCog.embeded(None,None,"https://c.tenor.com/pVzBgcp1RPQAAAAC/genshin-impact-animation.gif")
             msg = await ctx.send(embed=direction_embed) 
         await asyncio.sleep(5.9)
 
