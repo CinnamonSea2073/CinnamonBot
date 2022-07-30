@@ -239,6 +239,7 @@ class GamesCog(commands.Cog):
             direction_embed = GamesCog.embeded(None,None,"https://c.tenor.com/pVzBgcp1RPQAAAAC/genshin-impact-animation.gif")
             msg = await ctx.send(embed=direction_embed) 
         await asyncio.sleep(5.9)
+        await ctx.send("処理完了")
 
         #ガチャ演出のgifを貼ったEmbedを編集します。
         resalt_embed = discord.Embed(title="ガチャ十連結果",color=0xff5254,)
