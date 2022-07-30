@@ -1,3 +1,5 @@
+from ast import Break
+from socketserver import ForkingUDPServer
 from telnetlib import GA
 import yaml
 import discord
@@ -38,6 +40,16 @@ with open('./genshin_ster.yaml', 'r', encoding="utf-8_sig") as b:
         stmp = yaml.safe_load(b)
         if stmp != None:
             sters = stmp
+
+PERDATA = {0:0.0296, 6:0.0288, 11:0.0279, 16:0.0271, 21:0.0263, 
+           26:0.0255, 31:0.0248, 36:0.024, 41:0.0233, 46:0.0226, 
+           51:0.022, 56:0.0213, 61:0.0207, 66:0.02, 71:0.0195, 
+           76:0.5468, 81:0.0772, 86:0.0127}
+
+def getPer(top: int):
+        for v in PERDATA:
+            if top <= v:
+                return PERDATA[v]
 
 class GamesCog(commands.Cog):
 
@@ -163,75 +175,63 @@ class GamesCog(commands.Cog):
         embed.set_footer(text="made by CinnamonSea2073",icon_url=GamesCog.icon)
         await ctx.respond(embed=embed)
 
-    @games.command(name="genshinwish",description="原神ガチャシミュレーター")
+    @games.command(name="genshinwish",description="原神ガチャシミュレーター　※楓原万葉ピックアップ中！")
     async def genshinwish(
         self,
         ctx: discord.ApplicationContext,
         ):
+        #何か送信しないと応答なしと判断されてエラーを吐くので一応
+        await ctx.respond("処理を開始中...")
+
+        #天井カウントを読み込みます。resaltが送信者の天井カウントです。
+        await ctx.send("天井カウント処理中...")
         id = ctx.author.id
         name = ctx.author.name
         resalt = GamesCog.genshinget(id,name)
-
-        #何か送信しないと応答なしと判断されてエラーを吐くので一応
-        await ctx.respond("処理中...")
-
-        #まずは天井システムです。ここで送信者が天井に達しているか判断します。
-        await ctx.send("天井システム処理中...")
-        if resalt < 9:
-            p = False
-            s = False
-        elif resalt == 9:
-            p = True
-            s = False
-        elif resalt < 18:
-            p = False
-            s = True
-        elif resalt == 18:
-            p = True
-            s = True
         
+        #確率を計算します。getPerにて、天井カウントから星5排出の確率を出し、その確率に応じてほかの確率も変化します。
+        await ctx.send("天井カウントより確率を計算中...")
+        per = int(getPer(resalt))
+        three = 1 - per - 0.051
+        five = per / 2
+
         #次に確率です。天井システムを考慮したうえで、10連分の結果をrandomresalt[]として出します。
         #結果によっては天井カウントをリセットさせます。
-        await ctx.send("ガチャ確率システム処理中...")
-        if s == False and p == False:
+        await ctx.send("ガチャ結果を処理中...")
+        if resalt < 9:
             #完全に何も出していない状態での初期確率。確定で4を追加。
-            randomresalt = np.random.choice(["3","4","5","6"], size=9, p=[0.943,0.051,0.003,0.003])
+            randomresalt = np.random.choice(["3","4","5","6"], size=9, p=[three,0.051,five,five])
             randomresalt = randomresalt.tolist()
             randomresalt.append("4")
             if "5" in randomresalt:
                 GamesCog.genshinliset(id,name,9) 
             elif "6" in randomresalt:
                 GamesCog.genshinliset(id,name,0)      
-        elif s == False and p == True:
+        elif resalt == 9:
             #一度目の天井に達した確率。2/1の確率で5か6を追加。6の場合天井リセット。
-            randomresalt = np.random.choice(["3","4","5","6"], size=9, p=[0.943,0.051,0.003,0.003])
+            randomresalt = np.random.choice(["3","4","5","6"], size=9, p=[three,0.051,five,five])
             randomresalt = randomresalt.tolist()
             srinuke = np.random.choice(["5","6"], size=1, p=[0.5,0.5])
             srinuke = srinuke.tolist()
             randomresalt.append("".join(srinuke))
-            if "5" in randomresalt:
-                GamesCog.genshinliset(id,name,9) 
-            elif "6" in randomresalt:
+            if "6" in randomresalt:
                 GamesCog.genshinliset(id,name,0)   
-        if s == True and p == False:
+        elif resalt < 18:
             #一度目の天井以降の確率。確定で4を追加。5は出ない。6の場合天井リセット。
-            randomresalt = np.random.choice(["3","4","6"], size=9, p=[0.943,0.051,0.006])
+            randomresalt = np.random.choice(["3","4","6"], size=9, p=[three,0.051,per])
             randomresalt = randomresalt.tolist()
             randomresalt.append("4")
             if "6" in randomresalt:
                 GamesCog.genshinliset(id,name,0)      
-        elif s == True and p == True:
-            #二度目の天井の確率。確定で6を追加。その他の確率は初期確率と同率。
-            randomresalt = np.random.choice(["3","4","5","6"], size=9, p=[0.943,0.051,0.003,0.003])
+        elif resalt == 18:
+            #二度目の天井の確率。確定で6を追加。その他の確率は初期確率と同率。ついでに天井リセット。
+            randomresalt = np.random.choice(["3","4","5","6"], size=9, p=[three,0.051,five,five])
             randomresalt = randomresalt.tolist()
             randomresalt.append("6")
-            if "5" in randomresalt:
-                GamesCog.genshinliset(id,name,0) 
-            elif "6" in randomresalt:
-                GamesCog.genshinliset(id,name,0) 
+            GamesCog.genshinliset(id,name,0) 
 
         #ここで結果ごとにガチャ演出をさせ、ガチャ演出後に次の処理が行われるよう非同期sleepさせます。
-        await ctx.send("ガチャ結果処理中...")
+        await ctx.send("ガチャ結果による分岐処理中...")
         if "5" in randomresalt or "6" in randomresalt:
             direction_embed = GamesCog.embeded(None,None,"https://c.tenor.com/rOuL0G1uRpMAAAAC/genshin-impact-pull.gif")
             msg = await ctx.send(embed=direction_embed) 
@@ -248,23 +248,39 @@ class GamesCog(commands.Cog):
 
         #最後に出力です。ガチャ結果からキャラ名などをランダムで出し、画像として出力します。
         #ランダムの結果分（10回）forを回し、すべての要素を確認します。
+        final_result = []
+
         for r in randomresalt:
             if r == "4":
                     #4が入ってるだけ繰り返します。4/1の確率で恒常星4となり、結果を文字列化、キャラ名取得、画像url生成、embed生成します
                     sterresalt = np.random.choice(["four_1","four_2"], p=[0.25,0.75])
                     genshinname = GamesCog.genshinster("".join(sterresalt.tolist()))
-                    await ctx.respond(embed=GamesCog.embeded(genshinname,None,GamesCog.genshingen(genshinname))) 
+                    final_result.append(f"**{genshinname}**")
+                    await ctx.respond(embed=GamesCog.embeded(f"{genshinname}    ★★★★",None,GamesCog.genshingen(genshinname))) 
                     continue
             elif r == "5":
                     #5が入ってるだけ繰り返します。恒常星5のキャラ名取得、画像url生成、embed生成し、送信します。
                     genshinname = GamesCog.genshinster("five")
-                    await ctx.respond(embed=GamesCog.embeded(genshinname,None,GamesCog.genshingen(genshinname))) 
+                    final_result.append(f"**{genshinname}**")
+                    await ctx.respond(embed=GamesCog.embeded(f"{genshinname}    ★★★★★",None,GamesCog.genshingen(genshinname))) 
                     continue
             elif r == "6":   
                     #星6（ピックアップキャラ）のキャラ名を取得、画像url生成、embed生成し、ガチャ演出のEmbedを編集します。
                     genshinname = GamesCog.genshinster("six")
-                    await ctx.respond(embed=GamesCog.embeded(genshinname,None,GamesCog.genshingen(genshinname))) 
+                    final_result.append(f"**{genshinname}**")
+                    await ctx.respond(embed=GamesCog.embeded(f"{genshinname}    ★★★★★",None,GamesCog.genshingen(genshinname))) 
                     continue
+            elif r == "3":   
+                    #星3という結果を追加しておきます。
+                    genshinname = "星3"
+                    final_result.append(genshinname)
+                    continue
+
+        #ガチャ結果まとめ
+        embed = discord.Embed(title="ガチャ結果",color=0x1e90ff, description="\n".join(final_result))
+        embed.set_footer(text="made by CinnamonSea2073",
+                         icon_url=GamesCog.icon)
+        await ctx.respond(embed=embed)
     
 def setup(bot):
     bot.add_cog(GamesCog(bot))
