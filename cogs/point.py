@@ -207,6 +207,8 @@ class GamesCog(commands.Cog):
             resalt = GamesCog.genshinget(id,name)
             
             #確率を計算します。getPerにて、天井カウントから星5排出の確率を出し、その確率に応じてほかの確率も変化します。
+            #perが本来の星5排出の確率ですが、2/1の確率で恒常キャラ（ハズレ星5）となるため、fiveはperの半分にしています。
+            #星3の排出率は、星4の排出確率が0.051（5.1%）固定なのを考慮したうえで合計が1になるように計算しています。
             await ctx.send("天井カウントより確率を計算中...")
             per = getPer(resalt)
             three = 1 - per - 0.051
@@ -219,6 +221,10 @@ class GamesCog(commands.Cog):
             randomresalt = []
             if resalt < 9:
                 #完全に何も出していない状態での初期確率。確定で4を追加。
+                #さっき計算した確率をもとに、9回ガチャを回します。その後、4を追加することで、疑似的に確定で星4を排出するようになっています。
+                #回している途中に星5が出た場合は、星5が出なくなる天井カウント9に、
+                #星6が出た場合は天井カウントをリセットします。
+                #また、70連目当たりから確率が上昇するため、途中で星5か6が排出された際に確率を戻します。
                 for num in range(9):
                     #tmpresalt = np.random.choice(["3","4","5","6"], p=[three,0.051,five,five])
                     tmpresalt = random.choices(["3","4","5","6"], weights = [three,0.051,five,five])
@@ -237,6 +243,10 @@ class GamesCog(commands.Cog):
                 randomresalt.append("4")
             elif resalt == 9:
                 #一度目の天井に達した確率。2/1の確率で5か6を追加。6の場合天井リセット。
+                #さっき計算した確率をもとに、9回ガチャを回します。その後、4を追加することで、疑似的に確定で星4を排出するようになっています。
+                #また、一度目の天井では星5を確定で排出し、2/1の確率で恒常（ハズレ）かどうか変化するため、
+                #ガチャ後に確定で5か6を追加します。
+                #6が出た場合は天井リセットです。
                 for num in range(9):
                     tmpresalt = random.choices(["3","4","5","6"], weights = [three,0.051,five,five])
                     randomresalt.append("".join(tmpresalt))
@@ -255,6 +265,10 @@ class GamesCog(commands.Cog):
                 randomresalt.append("".join(srinuke))
             elif resalt < 18:
                 #一度目の天井以降の確率。確定で4を追加。5は出ない。6の場合天井と確率リセット。
+                #計算した確率をもとに、9回ガチャを回します。その後、4を追加することで、疑似的に確定で星4を排出するようになっています。
+                #恒常キャラ（ハズレ）が出た次の星5は確定で当たりが出るようになっているので、5は必ず排出されません。
+                #星6が出た場合は天井カウントをリセットします。
+                #また、160連目当たりから確率が上昇するため、途中で星5か6が排出された際に確率を戻します。
                 for num in range(9):
                     tmpresalt = random.choices(["3","4","6"], weights = [three,0.051,per])
                     randomresalt.append("".join(tmpresalt))
@@ -266,23 +280,18 @@ class GamesCog(commands.Cog):
                 randomresalt.append("4")
             elif resalt == 18:
                 #二度目の天井の確率。確定で6を追加。その他の確率は初期確率と同率。ついでに天井リセット。
+                #さっき計算した確率をもとに、9回ガチャを回します。
+                #二度目の天井のため、確定で6を追加し、天井カウントをリセットします。
+                #天井では確率は0.6%固定なので、分岐は必要ありません。
                 for num in range(9):
                     tmpresalt = random.choices(["3","4","5","6"], weights = [three,0.051,five,five])
                     randomresalt.append("".join(tmpresalt))
                     print(randomresalt)
-                    if "5" in randomresalt:
-                        per = 0.006
-                        three = 1 - per - 0.051
-                        five = per / 2
-                    elif "6" in randomresalt:
-                        GamesCog.genshinliset(id,name,0)
-                        per = 0.006 
-                        three = 1 - per - 0.051
-                        five = per / 2
                 randomresalt.append("6")
                 GamesCog.genshinliset(id,name,0) 
 
             #ここで結果ごとにガチャ演出をさせ、ガチャ演出後に次の処理が行われるよう非同期sleepさせます。
+            #5か6の場合は彗星もどきが金色に光る演出になります。
             #skipがTrueの場合は飛ばします。
             if skip == 0:
                 await ctx.send("ガチャ結果による分岐処理中...")
@@ -295,8 +304,8 @@ class GamesCog(commands.Cog):
                 await asyncio.sleep(5)
             await ctx.send("処理完了")
 
-            #ガチャ演出のgifを貼ったEmbedを編集します。
-            #skipがTrueだと演出gifを貼ったEmbedがないので普通に送信します。
+            #ガチャ演出のgifを貼ったEmbedを編集することで、どこからが今回のガチャ結果なのか見やすくします。。
+            #skipがTrueだと演出gifを貼ったEmbedがないので編集せずに普通に送信します。
             resalt_embed = discord.Embed(title="ガチャ10連結果",color=0xff5254,)
             resalt_embed.set_footer(text="made by CinnamonSea2073",icon_url=GamesCog.icon)
             if skip == 0:
