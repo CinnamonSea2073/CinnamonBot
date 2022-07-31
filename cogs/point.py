@@ -117,6 +117,88 @@ class GamesCog(commands.Cog):
         global sters
         return random.choice(sters[name])
 
+    def genshinwish_engine(n):
+        randomresalt = []
+        roof = 0
+        for num in range(n):
+            roof += 1
+            #天井から確率を計算
+            #hogeはリリース時に消せ（フラグ）
+            hoge = roof/10
+            per = getPer(hoge)
+            three = 1 - per - 0.051
+            five = per / 2
+            if roof % 10 > 0:
+                #通常の確率。
+                #さっき計算した確率をもとにガチャを回します。
+                #星5が出た場合は、星5が出なくなる天井カウント90に、
+                #星6が出た場合は天井カウントをリセットします。
+                tmpresalt = random.choices(["3","4","5","6"], weights = [three,0.051,five,five])
+                if "5" in tmpresalt:
+                    roof = 90
+                elif "6" in tmpresalt:
+                    roof = 0
+            elif roof % 10 == 0:
+                #星4天井システム。必ず星4以上を追加します。
+                #さっき計算した確率をもとにガチャを回します。
+                #星5が出た場合は、星5が出なくなる天井カウント90に、
+                #星6が出た場合は天井カウントをリセットします。
+                tmpresalt = random.choices(["3","4","5","6"], weights = [three,0.051,five,five])
+                if "5" in tmpresalt:
+                    roof = 90
+                elif "6" in tmpresalt:
+                    roof = 0
+                elif "3" in tmpresalt:
+                    tmpresalt = ["4"]
+            if roof == 90:
+                #一度目の天井に達した確率。2/1の確率で5か6を追加。6の場合天井リセット。
+                #返信では90連で星5を確定で排出し、2/1の確率で恒常（ハズレ）かどうか変化するため、
+                #5か6を追加します。
+                #6が出た場合は天井リセットです。
+                tmpresalt = random.choices(["5","6"], weights = [0.5,0.5])
+                if "6" in tmpresalt:
+                    roof = 0
+            elif roof < 180:
+                #一度目の天井以降の確率。5は出ない。6の場合天井と確率リセット。
+                #計算した確率をもとにガチャを回します。
+                #恒常キャラ（ハズレ）が出た次の星5は確定で当たりが出るようになっているので、5は必ず排出されません。
+                #星6が出た場合は天井カウントをリセットします。
+                if "5" in tmpresalt:
+                    tmpresalt = ["6"]
+                    roof = 0
+            elif roof == 180:
+                #二度目の天井。確定で6を追加。ついでに天井リセット。
+                tmpresalt = ["6"]
+                roof = 0
+            randomresalt.append("".join(tmpresalt))
+        return randomresalt
+
+    def genshinwish_counter(randomresalt):
+        final_result = []
+        for r in randomresalt:
+            if r == "4":
+                    #4が入ってるだけ繰り返します。2/1の確率で恒常星4となり、結果を文字列化、キャラ名取得、画像url生成、embed生成します
+                    sterresalt = random.choices(["four_1","four_2"], weights = [0.5,0.5])
+                    genshinname = GamesCog.genshinster("".join(sterresalt))
+                    final_result.append(f"★★★★   {genshinname}")
+                    continue
+            elif r == "5":
+                    #5が入ってるだけ繰り返します。恒常星5のキャラ名取得、画像url生成、embed生成し、送信します。
+                    genshinname = GamesCog.genshinster("five")
+                    final_result.append(f"**★★★★★**   **{genshinname}**")
+                    continue
+            elif r == "6":   
+                    #星6（ピックアップキャラ）のキャラ名を取得、画像url生成、embed生成し、ガチャ演出のEmbedを編集します。
+                    genshinname = GamesCog.genshinster("six")
+                    final_result.append(f"**★★★★★**   **{genshinname}**")
+                    continue
+            elif r == "3":   
+                    #星3という結果を追加しておきます。
+                    genshinname = "星3武器"
+                    #final_result.append(genshinname)
+                    continue
+        return final_result
+
     Skip_list = [
         OptionChoice(name='ガチャ演出をスキップする', value=1),
         OptionChoice(name='ガチャ演出をスキップしない', value=0)
@@ -169,6 +251,56 @@ class GamesCog(commands.Cog):
         embed.set_image(url=picture)
         embed.set_footer(text="made by CinnamonSea2073",icon_url=GamesCog.icon)
         await ctx.respond(embed=embed)
+
+    @money.command(name="genshinwish_n",description="原神n回ガチャシミュレーター　※楓原万葉ピックアップ中！")
+    async def genshinwish_n(
+        self,
+        ctx: discord.ApplicationContext,
+        n: Option(int, required=False, description="ガチャを引く回数",min_value=10, max_value=200, default=200)
+        ):
+        #何か送信しないと応答なしと判断されてエラーを吐くので一応
+        await ctx.respond("処理を開始中...")
+        id = ctx.author.id
+        name = ctx.author.name
+        money = n*3200
+
+        #金銭消費しないならここをFalseに変えてね
+        hogehogehogehoge = True
+        if hogehogehogehoge == True:
+            if GamesCog.point(id,name) < money:
+                await ctx.send(f"<@{id}> お金が足りません。/money up で増やしてください。\nあなたの所持金は**{GamesCog.point(id,name)}￥**です。")
+                iscommand = False
+                await ctx.send("処理終了")
+            else:
+                GamesCog.getpoint(id,None,-money)
+                await ctx.send(f"<@{id}> お金を{money}円消費しました。")
+                iscommand = True
+        elif hogehogehogehoge == False:
+            iscommand = True
+
+        #上のコマンドで金銭が足りてたらレッツガチャ！
+        if iscommand == True:
+            
+            embed = discord.Embed(title=f"ガチャ結果",color=0x1e90ff,)
+            embed.add_field(name=f"<@{ctx.author.id}>\nガチャを引いた回数：{n}\n使った金額：約{n*320}円",value="=====================")
+            await ctx.respond(embed=embed)
+
+            #n回繰り返すやつ
+            await ctx.send("ガチャを回しています...")
+            randomresalt = GamesCog.genshinwish_engine(n) 
+
+            #最後に出力です。ガチャ結果からキャラ名などをランダムで出し、画像として出力します。
+            #ランダムの結果分（10回）forを回し、すべての要素を確認します。
+            await ctx.send("ガチャ結果処理中...")
+            final_resalt = GamesCog.genshinwish_counter(randomresalt)
+
+            #ガチャ結果まとめ
+            await ctx.send("処理完了")
+            embed = discord.Embed(title="ガチャ結果",color=0x1e90ff,)
+            embed.add_field(name="=====================",value="\n".join(final_resalt))
+            embed.set_footer(text="made by CinnamonSea2073",
+                            icon_url=GamesCog.icon)
+            await ctx.respond(embed=embed)
 
     @money.command(name="genshinwish",description="原神ガチャシミュレーター　※楓原万葉ピックアップ中！")
     async def genshinwish(
@@ -352,8 +484,8 @@ class GamesCog(commands.Cog):
             else:
                 resalt_per = per*100
             print(resalt_per)
-            embed = discord.Embed(title="ガチャ結果",color=0x1e90ff,)
-            embed.add_field(name=f"ガチャを引いた回数：{resalt*10}\n使った金額：約{resalt*1600*2}円\n今回のガチャの★5確率：{resalt_per}%\n=====================",value="\n".join(final_result))
+            embed = discord.Embed(title=f"ガチャ結果",color=0x1e90ff,)
+            embed.add_field(name=f"<@{ctx.author.id}>\nガチャを引いた回数：{resalt*10}\n使った金額：約{resalt*1600*2}円\n今回のガチャの★5確率：{resalt_per}%\n=====================",value="\n".join(final_result))
             embed.set_footer(text="made by CinnamonSea2073",
                             icon_url=GamesCog.icon)
             await ctx.respond(embed=embed)
