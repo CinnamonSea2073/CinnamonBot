@@ -75,7 +75,10 @@ class SuperChatCog(commands.Cog):
             if send != None:
                 point.GamesCog.getpoint(int(send.strip('<!@>')), None, money)
             embed.set_author(name=ctx.author.name, icon_url=self.users.get(id))
-            await ctx.respond(send)
+            if send in "<":
+                await ctx.respond(send)
+            else:
+                await ctx.respond(f"<@{send}>")
             await ctx.send(embed=embed)
 
     @superchat.command(name='set', description='ユーザーの顔アイコンを登録するよ')
