@@ -263,6 +263,8 @@ class GamesCog(commands.Cog):
                 randomresalt.append("4")
                 srinuke = random.choices(["5","6"], weights = [0.5,0.5])
                 randomresalt.append("".join(srinuke))
+                if "6" in srinuke:
+                    GamesCog.genshinliset(id,name,0)
             elif resalt < 18:
                 #一度目の天井以降の確率。確定で4を追加。5は出ない。6の場合天井と確率リセット。
                 #計算した確率をもとに、9回ガチャを回します。その後、4を追加することで、疑似的に確定で星4を排出するようになっています。
