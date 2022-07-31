@@ -5,7 +5,12 @@ from discord import Option, SlashCommandGroup
 import joblib
 import requests
 import yaml
+import cogs.point as point
 
+intents = discord.Intents.default()
+intents.members = True 
+
+client = discord.Client(intents=intents)
 
 class UUID_NotFoundException(Exception):
     pass
@@ -33,34 +38,6 @@ def getColor(money: int):
 
 FILENAME = 'uuidlist.txt'
 
-users = dict()
-with open('./game.yaml', 'r', encoding="utf-8_sig") as f:
-        tmp = yaml.safe_load(f)
-        if tmp != None:
-            users = tmp
-
-def getpoint(id,name,point):
-    global users
-    if id in users:
-        point += users[id]["point"]
-        top = users[id]["top"]
-    else:
-        point += 100
-        top = 0
-    users[id] = {"name":name, "point":point, "top":top}
-    with open('./game.yaml', 'w',encoding="utf-8_sig") as f:
-        yaml.dump(users, f,default_flow_style=False,allow_unicode=True)
-    return int(users[id]["point"])
-
-def point(id, name):
-        global users
-        if id not in users:
-            users[id] = {"name":name, "point":100, "top":0}
-            with open('./game.yaml', 'w',encoding="utf-8_sig") as f:
-                yaml.dump(users, f,default_flow_style=False,allow_unicode=True)
-        return users[id]["point"] 
-
-
 class SuperChatCog(commands.Cog):
 
 
@@ -83,18 +60,21 @@ class SuperChatCog(commands.Cog):
         money: Option(int, description='送る金額を決めます 100 - 50,000', min_value=100, max_value=50000, default=500),
         message: Option(str, description='メッセージの内容を決定します', default=''),
         ):
-        global users  # コレ忘れてた
         embed = discord.Embed(
             title="¥ {:,}".format(money),
             color=getColor(money=money),
             description=message,
         )
-        if self.users.get(ctx.author.id) == None :
-            await ctx.respond(f"<@{ctx.author.id}> /superchat set で登録してください。")
-        elif users[ctx.author.id]["point"] < money:
-            await ctx.respond(f"<@{ctx.author.id}> お金が足りません。/point get で増やしてください。")
+        id = ctx.author.id
+        if self.users.get(id) == None :
+            await ctx.respond(f"<@{id}> /superchat set で登録してください。")
+        elif point.GamesCog.point(id,ctx.author.name) < money:
+            await ctx.respond(f"<@{id}> お金が足りません。/money up で増やしてください。\nあなたの所持金は**{point.GamesCog.point(id,ctx.author.name)}￥**です。")
         else:
-            embed.set_author(name=ctx.author.name, icon_url=self.users.get(ctx.author.id))
+            point.GamesCog.getpoint(id,ctx.author.name,-money)
+            if send != None:
+                point.GamesCog.getpoint(int(send.strip('<!@>')),None,money)
+            embed.set_author(name=ctx.author.name, icon_url=self.users.get(id))
             await ctx.respond(embed=embed)
 
     @superchat.command(name='set', description='ユーザーの顔アイコンを登録するよ')
