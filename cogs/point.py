@@ -5,18 +5,10 @@ from discord.ext import commands
 from discord import Option, OptionChoice, SlashCommandGroup
 from googletrans import Translator
 import random
-import copy
-import os
-import requests
 import urllib
-import json
-import numpy
-import time
 import asyncio
-from collections import Counter
 
 icon = "https://images-ext-2.discordapp.net/external/2FdKTBe_yKt6m5hYRdiTAkO0i0HVPkGDOF7lkxN6nO8/%3Fsize%3D128%26overlay/https/crafatar.com/avatars/5d3e654c29bb4ae59e3a5df78372597b.png"
-np = numpy
 users = dict()
 words = dict()
 with open('./game.yaml', 'r', encoding="utf-8_sig") as f:
@@ -210,8 +202,9 @@ class GamesCog(commands.Cog):
         if resalt < 9:
             #完全に何も出していない状態での初期確率。確定で4を追加。
             for num in range(9):
-                tmpresalt = np.random.choice(["3","4","5","6"], p=[three,0.051,five,five])
-                randomresalt.append(tmpresalt.tolist())
+                #tmpresalt = np.random.choice(["3","4","5","6"], p=[three,0.051,five,five])
+                tmpresalt = random.choices(["3","4","5","6"], weights = [three,0.051,five,five])
+                randomresalt.append("".join(tmpresalt))
                 print(randomresalt)
                 if "5" in randomresalt:
                     GamesCog.genshinliset(id,name,9) 
@@ -227,8 +220,8 @@ class GamesCog(commands.Cog):
         elif resalt == 9:
             #一度目の天井に達した確率。2/1の確率で5か6を追加。6の場合天井リセット。
             for num in range(9):
-                tmpresalt = np.random.choice(["3","4","5","6"], p=[three,0.051,five,five])
-                randomresalt.append(tmpresalt.tolist())
+                tmpresalt = random.choices(["3","4","5","6"], weights = [three,0.051,five,five])
+                randomresalt.append("".join(tmpresalt))
                 print(randomresalt)
                 if "5" in randomresalt:
                     per = 0.006
@@ -240,14 +233,13 @@ class GamesCog(commands.Cog):
                     three = 1 - per - 0.051
                     five = per / 2
             randomresalt.append("4")
-            srinuke = np.random.choice(["5","6"], size=1, p=[0.5,0.5])
-            srinuke = srinuke.tolist()
+            srinuke = random.choices(["5","6"], weights = [0.5,0.5])
             randomresalt.append("".join(srinuke))
         elif resalt < 18:
             #一度目の天井以降の確率。確定で4を追加。5は出ない。6の場合天井と確率リセット。
             for num in range(9):
-                tmpresalt = np.random.choice(["3","4","6"], p=[three,0.051,per])
-                randomresalt.append(tmpresalt.tolist())
+                tmpresalt = random.choices(["3","4","6"], weights = [three,0.051,per])
+                randomresalt.append("".join(tmpresalt))
                 print(randomresalt)
                 if "6" in randomresalt:
                     GamesCog.genshinliset(id,name,0)
@@ -257,8 +249,8 @@ class GamesCog(commands.Cog):
         elif resalt == 18:
             #二度目の天井の確率。確定で6を追加。その他の確率は初期確率と同率。ついでに天井リセット。
             for num in range(9):
-                tmpresalt = np.random.choice(["3","4","5","6"], p=[three,0.051,five,five])
-                randomresalt.append(tmpresalt.tolist())
+                tmpresalt = random.choices(["3","4","5","6"], weights = [three,0.051,five,five])
+                randomresalt.append("".join(tmpresalt))
                 print(randomresalt)
                 if "5" in randomresalt:
                     per = 0.006
@@ -301,8 +293,8 @@ class GamesCog(commands.Cog):
         for r in randomresalt:
             if r == "4":
                     #4が入ってるだけ繰り返します。2/1の確率で恒常星4となり、結果を文字列化、キャラ名取得、画像url生成、embed生成します
-                    sterresalt = np.random.choice(["four_1","four_2"], p=[0.5,0.5])
-                    genshinname = GamesCog.genshinster("".join(sterresalt.tolist()))
+                    sterresalt = random.choices(["four_1","four_2"], weights = [0.5,0.5])
+                    genshinname = GamesCog.genshinster("".join(sterresalt))
                     final_result.append(f"**{genshinname}**   ★★★★")
                     await ctx.respond(embed=GamesCog.embeded(f"{genshinname}    ★★★★",None,GamesCog.genshingen(genshinname))) 
                     continue
@@ -330,6 +322,7 @@ class GamesCog(commands.Cog):
             resalt_per = 100
         else:
             resalt_per = per*100
+        print(resalt_per)
         embed = discord.Embed(title="ガチャ結果",color=0x1e90ff,)
         embed.add_field(name=f"ガチャを引いた回数：{resalt*10}\n使った金額：約{resalt*1600*2}円\n今回のガチャの★5確率：{resalt_per}%\n=====================",value="\n".join(final_result))
         embed.set_footer(text="made by CinnamonSea2073",
