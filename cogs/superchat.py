@@ -74,9 +74,10 @@ class SuperChatCog(commands.Cog):
         try:
             self.users[ctx.author.id] = await get_face(mc_name)
             y.save_yaml(self.users)
+            await ctx.respond(f'{mc_name}の顔を登録したよ')
         except UUID_NotFoundException as e:
             await ctx.respond(e)
-        await ctx.respond(f'{mc_name}の顔を登録したよ')
+
 
 
 def setup(bot):
