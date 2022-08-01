@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
-from discord import Option, OptionChoice, SlashCommandGroup
-import os
-import requests
+from discord import Option, SlashCommandGroup
+from lib.faceutil import get_face, UUID_NotFoundException
 
 
 class OthersCog(commands.Cog):
@@ -39,23 +38,12 @@ class OthersCog(commands.Cog):
         ctx: discord.ApplicationContext,
         mcid: Option(str, required=True, description="マイクラIDをかいてね", )
     ):
-        if not mcid:
-            mcid = ctx.author
-        mojang = requests.get(
-            f"https://api.mojang.com/users/profiles/minecraft/{mcid}").json()
-        isvalid = mojang.get("id", None)
-        if isvalid is None:
-            await ctx.respond("プレイヤー'{}'は存在しません。".format(mcid))
-        else:
-            crafatar = requests.get(
-                f"https://crafatar.com/avatars/{mojang['id']}", stream=True)
-            with open(f"{mcid}.png", "wb") as f:
-                f.write(crafatar.content)
-            file = discord.File(f"{mcid}.png", filename=f"{mcid}.png")
+        try:
             embed = discord.Embed(title=f"{mcid} のお顔")
-            embed.set_image(url=f"attachment://{mcid}.png")
-            await ctx.respond(file=file, embed=embed)
-            os.remove(f"{mcid}.png")
+            embed.set_image(url=await get_face(username=mcid))
+            await ctx.respond(embed=embed)
+        except UUID_NotFoundException as e:
+            await ctx.respond(e)
 
     @others.command(name="seichi", description="整地から逃げるな(ほぼ自分用)")
     async def seichi(
