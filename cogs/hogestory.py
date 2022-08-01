@@ -5,9 +5,11 @@ from discord import Option, OptionChoice, SlashCommandGroup
 from googletrans import Translator
 import random
 import copy
+from lib.yamlutil import yaml
 
-path = './hogestory.yaml'
-encode = 'utf-8_sig'
+path = 'hogestory.yaml'
+
+hogestory = yaml(path=path)
 
 
 class HogestoryCog(commands.Cog):
@@ -18,14 +20,11 @@ class HogestoryCog(commands.Cog):
 
     # yamlを読み込んでlistで返却します
     def read_yaml() -> list[str]:
-        with open(path, 'r', encoding=encode) as f:
-            return (yaml.safe_load(f))['story']
+        return (hogestory.load_yaml({"story": []}))['story']
 
     # ymalに一次配列のlistを上書きします
     def write_yaml(story: list[str]):
-        with open(path, 'w', encoding=encode) as f:
-            yaml.dump({'story': story}, f,
-                      default_flow_style=False, allow_unicode=True)
+        hogestory.save_yaml({"story": story})
 
     lang_codes: list[str] = ['en', 'it', 'ne', 'ko', 'de']
 

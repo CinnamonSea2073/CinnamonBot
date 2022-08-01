@@ -1,4 +1,4 @@
-import yaml
+from lib.yamlutil import yaml
 import discord
 from discord.ext import commands
 from discord import Option, OptionChoice, SlashCommandGroup
@@ -7,6 +7,8 @@ import random
 import copy
 import os
 
+itudokoYaml = yaml("itudoko.yaml")
+
 
 class ItudokoCog(commands.Cog):
 
@@ -14,19 +16,16 @@ class ItudokoCog(commands.Cog):
         print('いつどこ初期化')
         self.bot = bot
 
-    with open('./itudoko.yaml', mode='rt', encoding='utf-8_sig') as file:
-        stack: list[list[str]] = yaml.safe_load(file)
-
     # ランダム抽出をここでやっちゃう作戦
+
     def word():
-        with open('./itudoko.yaml', 'r', encoding="utf-8_sig") as f:
-            data = yaml.safe_load(f)
-            itu = random.choice(data['itu'])
-            dokode = random.choice(data['dokode'])
-            darega = random.choice(data['darega'])
-            donoyouni = random.choice(data['donoyouni'])
-            naniwosita = random.choice(data['naniwosita'])
-            message = f"{itu}\n{dokode}\n{darega}\n{donoyouni}\n{naniwosita}"
+        data = itudokoYaml.load_yaml()
+        itu = random.choice(data['itu'])
+        dokode = random.choice(data['dokode'])
+        darega = random.choice(data['darega'])
+        donoyouni = random.choice(data['donoyouni'])
+        naniwosita = random.choice(data['naniwosita'])
+        message = f"{itu}\n{dokode}\n{darega}\n{donoyouni}\n{naniwosita}"
         # randomwordが完成したランダム抽出
         return message
 
@@ -75,15 +74,13 @@ class ItudokoCog(commands.Cog):
         content: Option(str, required=True, description="追加する単語を設定してください", ),
     ):
 
-        with open('./itudoko.yaml', 'r+', encoding="utf-8_sig") as f:
-            data = yaml.safe_load(f)
-            hogedata = data[choice]
-            hogedata.append(content)
-            print(hogedata)
-            data[choice] = hogedata
-            print(data)
-            f.seek(0)
-            yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
+        data = itudokoYaml.load_yaml()
+        hogedata = data[choice]
+        hogedata.append(content)
+        print(hogedata)
+        data[choice] = hogedata
+        print(data)
+        itudokoYaml.save_yaml(data)
         await ctx.respond(f"{choice}に{content}を追加しました。")
 
     @itudoko.command(name='trans', description='再翻訳で支離滅裂な文章に変換します')
