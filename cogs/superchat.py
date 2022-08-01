@@ -37,7 +37,7 @@ def getColor(money: int):
             return COLORDATA[v]
 
 
-FILENAME = 'uuidlist.txt'
+FILENAME = './data/uuidlist.txt'
 
 
 class SuperChatCog(commands.Cog):
