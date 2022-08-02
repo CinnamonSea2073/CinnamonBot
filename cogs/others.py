@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord import Option, SlashCommandGroup
 from lib.faceutil import get_face, UUID_NotFoundException
+import urllib
 
 
 class OthersCog(commands.Cog):
@@ -99,6 +100,15 @@ class OthersCog(commands.Cog):
                          icon_url="https://images-ext-2.discordapp.net/external/2FdKTBe_yKt6m5hYRdiTAkO0i0HVPkGDOF7lkxN6nO8/%3Fsize%3D128%26overlay/https/crafatar.com/avatars/5d3e654c29bb4ae59e3a5df78372597b.png")
 
         await ctx.respond(embed=embed)
+
+    @others.command(name="5000oku", description="5000億円欲しい！")
+    async def oku(
+        self,
+        ctx: discord.ApplicationContext,
+        up: Option(str, required=True, description="上文字列", ),
+        down: Option(str, required=True, description="下文字列", )
+    ):
+        await ctx.respond(f"https://gsapi.cbrx.io/image?top={urllib.parse.quote(up)}&bottom={urllib.parse.quote(down)}")
 
 
 def setup(bot):
