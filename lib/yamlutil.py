@@ -13,10 +13,13 @@ class yaml:
         yamlを読み込んでそのままDictとかListにします。
         読み込めなかった場合にはdefaultの値を返します。
         """
-        with open(self.path, 'r', encoding="utf-8_sig") as f:
-            data = y.safe_load(f)
-            if data != None:
-                return data
+        try:
+            with open(self.path, 'r', encoding="utf-8_sig") as f:
+                data = y.safe_load(f)
+                if data != None:
+                    return data
+                return default
+        except FileNotFoundError:
             return default
 
     def save_yaml(self, data: any):
