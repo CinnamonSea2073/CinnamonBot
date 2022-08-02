@@ -28,5 +28,6 @@ bot.load_extension('cogs.point')
 bot.load_extension('cogs.hogestory')
 bot.load_extension('cogs.superchat')
 bot.load_extension('cogs.button_test')
+bot.load_extension('cogs.todo')
 
 bot.run(TOKEN)
