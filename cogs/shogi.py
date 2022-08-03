@@ -1,4 +1,3 @@
-from curses import beep
 from lib.yamlutil import yaml
 import discord
 from discord.ext import commands
@@ -15,6 +14,18 @@ minhaya = minhayaYaml.load_yaml()
 def get_question():
     return random.choice(minhaya)
 
+def add(content,ans1,ans2,ans3,ans4,a):
+        global minhaya
+        for num in range(100):
+            try:
+                hoge = minhaya[num]
+                print(hoge)
+                continue
+            except KeyError:
+                minhaya[num] = {"exam": content, "ans": [ans1,ans2,ans3,ans4], "a": a}
+                minhayaYaml.save_yaml(minhaya)
+                return str(minhaya[num]["exam"])
+
 class TicTacToeButton(discord.ui.Button["TicTacToe"]):
     def __init__(self, label: str):
         super().__init__(style=discord.ButtonStyle.secondary, label=label)
@@ -24,10 +35,10 @@ class TicTacToeButton(discord.ui.Button["TicTacToe"]):
         view: TicTacToe = self.view
 
         self.style = discord.ButtonStyle.danger
-        content = 'はずれ'
+        content = f'{self.view.exam}\nはずれ'
         if self.label == self.view.a:
             self.style = discord.ButtonStyle.success
-            content = f'<@{interaction.user.id}> 正解！ **10,000円** を追加します。'
+            content = f'{self.view.exam}\n<@{interaction.user.id}> 正解！ **10,000円** を追加します。'
             point.GamesCog.getpoint(interaction.user.id,interaction.user.name,10000)
             print(interaction.user.id)
             for child in self.view.children:
@@ -42,8 +53,9 @@ class TicTacToe(discord.ui.View):
     def __init__(self, data):
         super().__init__(timeout=190)
         self.a = data["a"]
+        self.exam = data["exam"]
         hoge = data.get('ans')
-        #random.shuffle(hoge)
+        random.shuffle(hoge)
         for v in hoge:
             self.add_item(TicTacToeButton(v))
 
@@ -55,7 +67,7 @@ class TicTacToeCog(commands.Cog):
         self.bot = bot
     
     nb = SlashCommandGroup('hayaoshi', 'test')
-
+    
     @nb.command(name='test', description='button')
     async def button(self, ctx):
         # レスポンスで定義したボタンを返す
@@ -67,6 +79,20 @@ class TicTacToeCog(commands.Cog):
         await ctx.send("1秒後に問題が出ます")
         asyncio.sleep(2)
         await ctx.respond(hoge['exam'], view=TicTacToe(hoge))
+
+    @nb.command(name="add", description="問題を追加します")
+    async def ans_add(
+        self,
+        ctx: discord.ApplicationContext,
+        content: Option(str, required=True, description="問題の文章です", ),
+        ans1: Option(str, required=True, description="問題の選択肢1", ),
+        ans2: Option(str, required=True, description="問題の選択肢2", ),
+        ans3: Option(str, required=True, description="問題の選択肢3", ),
+        ans4: Option(str, required=True, description="問題の選択肢4", ),
+        a: Option(str, required=True, description="問題の答え", )
+    ):
+        await ctx.respond(f"問題に **{add(content,ans1,ans2,ans3,ans4,a)}** を追加しました")
+        #print([content,ans1,a])
 
 def setup(bot):
     bot.add_cog(TicTacToeCog(bot))
