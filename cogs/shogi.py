@@ -1,3 +1,4 @@
+from curses import beep
 from lib.yamlutil import yaml
 import discord
 from discord.ext import commands
@@ -13,7 +14,6 @@ minhaya = minhayaYaml.load_yaml()
 
 def get_question():
     return random.choice(minhaya)
-
 
 class TicTacToeButton(discord.ui.Button["TicTacToe"]):
     def __init__(self, label: str):
@@ -42,16 +42,18 @@ class TicTacToe(discord.ui.View):
     def __init__(self, data):
         super().__init__(timeout=190)
         self.a = data["a"]
-        for v in data.get('ans'):
+        hoge = data.get('ans')
+        #random.shuffle(hoge)
+        for v in hoge:
             self.add_item(TicTacToeButton(v))
 
 
 class TicTacToeCog(commands.Cog):
 
     def __init__(self, bot):
-        print('test')
+        print('みんはやinit')
         self.bot = bot
-
+    
     nb = SlashCommandGroup('hayaoshi', 'test')
 
     @nb.command(name='test', description='button')
@@ -65,7 +67,6 @@ class TicTacToeCog(commands.Cog):
         await ctx.send("1秒後に問題が出ます")
         asyncio.sleep(2)
         await ctx.respond(hoge['exam'], view=TicTacToe(hoge))
-
 
 def setup(bot):
     bot.add_cog(TicTacToeCog(bot))
