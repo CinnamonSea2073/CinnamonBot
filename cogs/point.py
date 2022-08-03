@@ -207,7 +207,7 @@ class GamesCog(commands.Cog):
             int(GamesCog.point(ctx.author.id, ctx.author.name)))
         await ctx.respond(f"現在のあなたの所持金は **{money}￥** です！")
 
-    @money.command(name="up", description="お金を増やします")
+    #@money.command(name="up", description="お金を増やします")
     async def up(
         self,
         ctx: discord.ApplicationContext,

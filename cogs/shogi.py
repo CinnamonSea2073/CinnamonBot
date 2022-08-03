@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import Option, OptionChoice, SlashCommandGroup
 import random
-import urllib
+import cogs.point as point
 import asyncio
 
 from typing import List
@@ -11,23 +11,8 @@ from typing import List
 minhayaYaml = yaml('minhaya.yaml')
 minhaya = minhayaYaml.load_yaml()
 
-cinnamonBazz = {
-    "exam": "しなもんさんのツイートの最大いいね数は？",
-    "ans": ['7000', '10000', '25000', '50000']
-}
-
 def get_question():
-    global minhaya
-    #指定したランダムな数字で問題番号の内容を叩く
-    number = random.randint(0,1)
-    exam = str("".join(minhaya[number]["exam"]))
-    ans = minhaya[number]["ans"]
-    a = str(minhaya[number]["a"])
-    resalt = {
-        "exam": exam,
-        "ans": ans}
-    return resalt,a,ans
-
+    return random.choice(minhaya)
 
 
 class TicTacToeButton(discord.ui.Button["TicTacToe"]):
@@ -38,11 +23,13 @@ class TicTacToeButton(discord.ui.Button["TicTacToe"]):
         assert self.view is not None
         view: TicTacToe = self.view
 
-        self.style = discord.ButtonStyle.success
-        resalt = get_question()
+        self.style = discord.ButtonStyle.danger
         content = 'はずれ'
-        if self.label == resalt[1]:
-            content = 'せいかい'
+        if self.label == self.view.a:
+            self.style = discord.ButtonStyle.success
+            content = f'<@{interaction.user.id}> 正解！ **10,000円** を追加します。'
+            point.GamesCog.getpoint(interaction.user.id,interaction.user.name,10000)
+            print(interaction.user.id)
             for child in self.view.children:
                 child.disabled = True
 
@@ -52,12 +39,10 @@ class TicTacToeButton(discord.ui.Button["TicTacToe"]):
 class TicTacToe(discord.ui.View):
     children: List[TicTacToeButton]
 
-    def __init__(self):
+    def __init__(self, data):
         super().__init__(timeout=190)
-        
-        resalt = get_question()
-        hoge = resalt[0]
-        for v in hoge.get('ans'):
+        self.a = data["a"]
+        for v in data.get('ans'):
             self.add_item(TicTacToeButton(v))
 
 
@@ -73,8 +58,13 @@ class TicTacToeCog(commands.Cog):
     async def button(self, ctx):
         # レスポンスで定義したボタンを返す
         hoge = get_question()
-        hoge = hoge[1]
-        await ctx.respond(hoge['exam'], view=TicTacToe())
+        await ctx.respond("3秒後に問題が出ます")
+        asyncio.sleep(2)
+        await ctx.send("2秒後に問題が出ます")
+        asyncio.sleep(2)
+        await ctx.send("1秒後に問題が出ます")
+        asyncio.sleep(2)
+        await ctx.respond(hoge['exam'], view=TicTacToe(hoge))
 
 
 def setup(bot):
