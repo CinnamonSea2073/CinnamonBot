@@ -1,3 +1,4 @@
+from numpy import gradient
 from lib.yamlutil import yaml
 import discord
 from discord.ext import commands
@@ -36,6 +37,28 @@ class todoCog(commands.Cog):
             return
         return todo[number]
 
+    def todoliset():
+        global todo
+        tmp = 0
+        for num in range(1000):
+            if num == 0:
+                continue
+            try:
+                if len(todo[num]["name"]) == 0:
+                    continue
+                else:
+                    hoge = todo[num]
+                    tmp += 1
+                    print(tmp)
+                    todo[tmp] = {"name": todo[num]["name"], "content": todo[num]["content"]}
+                    todoYaml.save_yaml(todo)
+                    continue
+            except KeyError:
+                continue
+            except TypeError:
+                continue
+        return 
+
     def todoadd(name,content):
         global todo
         for num in range(100):
@@ -43,11 +66,11 @@ class todoCog(commands.Cog):
                 continue
             try:
                 hoge = todo[num]
-                print(hoge)
                 continue
             except KeyError:
                 todo[num] = {"name": name, "content": content}
                 todoYaml.save_yaml(todo)
+                todoCog.todoliset()
                 return todo[num]["content"],num
     
     def todoremove(number):
@@ -56,6 +79,7 @@ class todoCog(commands.Cog):
             return
         todo[number] = {"name": None, "content": None}
         todoYaml.save_yaml(todo)
+        todoCog.todoliset()
         return number
 
     todo = SlashCommandGroup('todo', 'superchat')
@@ -75,10 +99,14 @@ class todoCog(commands.Cog):
         ctx: discord.ApplicationContext,
     ):
         embed = discord.Embed(title=f"TODO", color=0x1e90ff,)
-        for number, value in todo.items():
+        todoCog.todoliset()
+        for number in range(1000):
+            if number == 0:
+                continue
             try:
-                name = value["name"]
-                content = value["content"]
+                global todo
+                name = todo[number]["name"]
+                content = todo[number]["content"]
                 if name == None:
                     continue
                 embed.add_field(
