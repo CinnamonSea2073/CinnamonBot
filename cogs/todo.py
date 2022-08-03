@@ -58,8 +58,8 @@ class todoCog(commands.Cog):
     async def set(
         self,
         ctx: discord.ApplicationContext,
-        number: Option(int, description='todoの番号'),
-        content: Option(str, description='todoの内容')
+        number: Option(int, required=True, description='todoの番号'),
+        content: Option(str, required=True, description='todoの内容')
     ):
         content = todoCog.todoadd(number,ctx.author.name,content)
         if content == None:
@@ -92,18 +92,30 @@ class todoCog(commands.Cog):
         ctx: discord.ApplicationContext,
     ):
         embed = discord.Embed(title=f"TODO", color=0x1e90ff,)
-        for number in range(10):
-            global todo
-            number += 1
+        for number, value in todo.items():
             try:
-                name = todo[number]["name"]
-                content = todo[number]["content"]
+                name = value["name"]
+                content = value["content"]
+                if name == None:
+                    continue
                 embed.add_field(
-                        name=f"{number}", value=f"By **{name}**\n{content}")
+                        name=f"{number}", value=f"{content}\nBy **{name}**")
             except KeyError:
                 continue
         embed.set_footer(text="made by CinnamonSea2073",icon_url=todoCog.icon)
         await ctx.respond(embed=embed)
+
+    @todo.command(name='remove', description='todoを削除します。')
+    async def remove(
+        self,
+        ctx: discord.ApplicationContext,
+        number: Option(int, required=True, description='todoの番号')
+    ):
+        remove = todoCog.todoremove(number)
+        if remove == None:
+            await ctx.respond("その番号は存在しません")
+        else:
+            await ctx.respond(f"**{remove}** を削除しました。")
 
 def setup(bot):
     bot.add_cog(todoCog(bot))

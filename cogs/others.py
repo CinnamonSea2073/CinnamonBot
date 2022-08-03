@@ -3,13 +3,17 @@ from discord.ext import commands
 from discord import Option, SlashCommandGroup
 from lib.faceutil import get_face, UUID_NotFoundException
 import urllib
+from discord_buttons_plugin import *
 
+buttons = "hoge"
 
 class OthersCog(commands.Cog):
 
     def __init__(self, bot):
         print('そのた初期化.')
         self.bot = bot
+        global buttons
+        buttons = ButtonsClient(bot)
 
     # コマンドグループを定義っ！！！
     others = SlashCommandGroup('etc', 'test')
@@ -110,6 +114,30 @@ class OthersCog(commands.Cog):
     ):
         await ctx.respond(f"https://gsapi.cbrx.io/image?top={urllib.parse.quote(up)}&bottom={urllib.parse.quote(down)}")
 
-
+    @others.command(name="test", description="tessssssssssst")
+    async def test(
+        self,
+        ctx: discord.ApplicationContext,
+    ):
+        await buttons.send(
+		content = "テストボタン", 
+		channel = ctx.channel.id,
+		components = [
+			ActionRow([
+				Button(
+					label="Hello", 
+					style=ButtonType().Primary, 
+					custom_id="button_hello"
+				)
+			]),ActionRow([
+				Button(
+					label="Ephemeral",
+					style=ButtonType().Danger,
+					custom_id="button_ephemeral"
+				)
+			])
+		]
+	    )
+    
 def setup(bot):
     bot.add_cog(OthersCog(bot))
