@@ -36,14 +36,20 @@ class todoCog(commands.Cog):
             return
         return todo[number]
 
-    def todoadd(number,name,content):
+    def todoadd(name,content):
         global todo
-        #if number in todo:
-            #return
-        todo[number] = {"name": name, "content": content}
-        todoYaml.save_yaml(todo)
-        return str(todo[number]["content"])
-
+        for num in range(100):
+            if num == 0:
+                continue
+            try:
+                hoge = todo[num]
+                print(hoge)
+                continue
+            except KeyError:
+                todo[num] = {"name": name, "content": content}
+                todoYaml.save_yaml(todo)
+                return todo[num]["content"],num
+    
     def todoremove(number):
         global todo
         if number not in todo:
@@ -58,33 +64,10 @@ class todoCog(commands.Cog):
     async def set(
         self,
         ctx: discord.ApplicationContext,
-        number: Option(int, required=True, description='todoの番号'),
         content: Option(str, required=True, description='todoの内容')
     ):
-        content = todoCog.todoadd(number,ctx.author.name,content)
-        if content == None:
-            await ctx.respond("その番号はすでに追加されていますが、上書きしますか？")
-            await buttons.send(
-                content = None, 
-                channel = ctx.channel.id,
-                components = [
-                    ActionRow([
-                        Button(
-                            label="Yes", 
-                            style=ButtonType().Danger, 
-                            custom_id="button_Yes"
-                        )
-                    ]),ActionRow([
-                        Button(
-                            label="No",
-                            style=ButtonType().Primary,
-                            custom_id="button_No"
-                        )
-                    ])
-                ]
-            )
-        else:
-            await ctx.respond(f'todo番号 **{number}** に「**{content}**」を追加しました。')
+        content = todoCog.todoadd(ctx.author.name,content)
+        await ctx.respond(f'todo番号 **{content[1]}** に「**{content[0]}**」を追加しました。')
 
     @todo.command(name='check', description='todoを確認します。')
     async def check(
