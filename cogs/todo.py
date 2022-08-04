@@ -5,8 +5,6 @@ from discord import Option, SlashCommandGroup
 import cogs.point as point
 import datetime
 
-dt_now = datetime.datetime.now()
-
 todoYaml = yaml('todo.yaml')
 
 
@@ -28,6 +26,7 @@ class todoCog(commands.Cog):
         return embed
 
     def todoadd(self, name, content):
+        dt_now = datetime.datetime.now()
         self.todo.append({"name": name, "content": content, "time": dt_now.strftime('%m月%d日 %H:%M')})
         todoYaml.save_yaml(self.todo)
 
