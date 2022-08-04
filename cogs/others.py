@@ -2,10 +2,11 @@ import discord
 from discord.ext import commands
 from discord import Option, SlashCommandGroup
 from lib.faceutil import get_face, UUID_NotFoundException
-import urllib
+from lib.chouen import getChouen
 from discord_buttons_plugin import *
 
 buttons = "hoge"
+
 
 class OthersCog(commands.Cog):
 
@@ -112,7 +113,7 @@ class OthersCog(commands.Cog):
         up: Option(str, required=True, description="上文字列", ),
         down: Option(str, required=True, description="下文字列", )
     ):
-        await ctx.respond(f"https://gsapi.cbrx.io/image?top={urllib.parse.quote(up)}&bottom={urllib.parse.quote(down)}")
+        await ctx.respond(getChouen(top=up, bottom=down))
 
     @others.command(name="test", description="tessssssssssst")
     async def test(
@@ -120,24 +121,25 @@ class OthersCog(commands.Cog):
         ctx: discord.ApplicationContext,
     ):
         await buttons.send(
-		content = "テストボタン", 
-		channel = ctx.channel.id,
-		components = [
-			ActionRow([
-				Button(
-					label="Hello", 
-					style=ButtonType().Primary, 
-					custom_id="button_hello"
-				)
-			]),ActionRow([
-				Button(
-					label="Ephemeral",
-					style=ButtonType().Danger,
-					custom_id="button_ephemeral"
-				)
-			])
-		]
-	    )
-    
+            content="テストボタン",
+            channel=ctx.channel.id,
+            components=[
+                ActionRow([
+                    Button(
+                        label="Hello",
+                        style=ButtonType().Primary,
+                        custom_id="button_hello"
+                    )
+                ]), ActionRow([
+                    Button(
+                        label="Ephemeral",
+                        style=ButtonType().Danger,
+                        custom_id="button_ephemeral"
+                    )
+                ])
+            ]
+        )
+
+
 def setup(bot):
     bot.add_cog(OthersCog(bot))

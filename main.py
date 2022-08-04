@@ -30,5 +30,6 @@ bot.load_extension('cogs.superchat')
 bot.load_extension('cogs.button_test')
 bot.load_extension('cogs.todo')
 bot.load_extension('cogs.shogi')
+bot.load_extension('cogs.nb')
 
 bot.run(TOKEN)
