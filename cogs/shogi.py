@@ -76,7 +76,7 @@ class TicTacToeCog(commands.Cog):
             await ctx.interaction.edit_original_message(content=message.format(str(n-i)))
             await asyncio.sleep(1)
 
-    @nb.command(name='問題をランダムで排出します', description='button')
+    @nb.command(name='get', description='問題をランダムで排出します')
     async def button(self, ctx: discord.ApplicationContext):
         # レスポンスで定義したボタンを返す
         hoge = get_question()
