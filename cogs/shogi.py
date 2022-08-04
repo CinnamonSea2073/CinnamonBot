@@ -88,13 +88,12 @@ class TicTacToeCog(commands.Cog):
         self,
         ctx: discord.ApplicationContext,
         content: Option(str, required=True, description="問題の文章です", ),
-        ans1: Option(str, required=True, description="問題の選択肢1", ),
-        ans2: Option(str, required=True, description="問題の選択肢2", ),
-        ans3: Option(str, required=True, description="問題の選択肢3", ),
-        ans4: Option(str, required=True, description="問題の選択肢4", ),
-        a: Option(str, required=True, description="問題の答え", )
+        ans1: Option(str, required=True, description="【間違いを入力】問題の選択肢1", ),
+        ans2: Option(str, required=True, description="【間違いを入力】問題の選択肢2", ),
+        ans3: Option(str, required=True, description="【間違いを入力】問題の選択肢3", ),
+        a: Option(str, required=True, description="【答えを入力】問題の答え", )
     ):
-        await ctx.respond(f"問題に **{add(content,ans1,ans2,ans3,ans4,a)}** を追加しました")
+        await ctx.respond(f"問題に **{add(content,ans1,ans2,ans3,a,a)}** を追加しました")
         point.GamesCog.getpoint(ctx.author.id,ctx.author.name,10000)
         await ctx.send(f"<@{ctx.author.id}> 10,000円が追加されました！問題追加ありがとう！！")
         #print([content,ans1,a])
