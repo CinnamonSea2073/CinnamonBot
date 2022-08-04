@@ -24,7 +24,7 @@ class helpselectView(View):
                     description="いつどこゲームができるコマンドです。ランダムで謎の文章を作れます。"),
                 discord.SelectOption(
                     label="お金関連コマンド",
-                    emoji="💲",
+                    emoji="💰",
                     description="お金に関連するコマンドです。原神ガチャもできます。"),
                 discord.SelectOption(
                     label="みんはやコマンド",
@@ -37,7 +37,11 @@ class helpselectView(View):
                 discord.SelectOption(
                     label="todoコマンド",
                     emoji="📝",
-                    description="todoができるコマンドです。積極的に活用してみましょう。")
+                    description="todoができるコマンドです。積極的に活用してみましょう。"),
+                discord.SelectOption(
+                    label="nbコマンド",
+                    emoji="🗯",
+                    description="nbさんの名言を出すコマンドです。たくさんの、コマンドが、あるんだねぇ。")
         ])
     async def select_callback(self, select:discord.ui.Select, interaction):
         embed = discord.Embed(title=f"helpコマンド：{select.values[0]}",color=0x1e90ff)
@@ -121,6 +125,17 @@ class helpselectView(View):
                     \n**・/todo check**\ntodoを確認するコマンドです。\
                     \n**・/todo add**\ntodoを追加するコマンドです。やりたいと思ったことはすぐtodoに追加すると忘れないから便利だよ！\
                     \n**・/todo remove**\ntodoから特定のtodoを削除するコマンドです。間違えて追加してたり、todoの内容を達成したときに！\
+                    "
+                )
+        elif select.values[0] == "nbコマンド":
+            print("uioj")
+            select.disabled = True
+            embed.add_field(
+                name=f"nbさんの名言が詰まったコマンドジャンルです。制作者：nikawamikanさん。",
+                value=f"\
+                    \n**・/itudoko home**\n褒められたときに使えるコマンドです。\
+                    \n**・/itudoko youtube**\nnbさんの名言に単語を当てはめて生成できるっぽいです。\
+                    \n**・/itudoko meigen**\nnbさんの名言をランダムで出してくれるっぽいです。\
                     "
                 )
         await interaction.response.edit_message(view=self)
