@@ -224,6 +224,9 @@ class GamesCog(commands.Cog):
         ctx: discord.ApplicationContext,
         point: Option(int, required=True, description="減らす量を設定してください", )
     ):
+        if point < 0:
+            await ctx.respond(f":thinking:")
+            return
         print(ctx.author.id)
         money = "{:,}".format(int(GamesCog.getpoint(
             ctx.author.id, ctx.author.name, -point)))

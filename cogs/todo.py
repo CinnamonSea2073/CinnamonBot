@@ -2,7 +2,10 @@ from lib.yamlutil import yaml
 import discord
 from discord.ext import commands
 from discord import Option, SlashCommandGroup
+import cogs.point as point
+import datetime
 
+dt_now = datetime.datetime.now()
 
 todoYaml = yaml('todo.yaml')
 
@@ -25,13 +28,13 @@ class todoCog(commands.Cog):
         return embed
 
     def todoadd(self, name, content):
-        self.todo.append({"name": name, "content": content})
+        self.todo.append({"name": name, "content": content, "time": dt_now.strftime('%m月%d日 %H:%M')})
         todoYaml.save_yaml(self.todo)
 
     def todoremove(self, number):
         self.todo.pop(number)
         todoYaml.save_yaml(self.todo)
-        todoCog.todoliset()
+        #todoCog.todoliset()
 
     todo = SlashCommandGroup('todo', 'superchat')
 
@@ -41,7 +44,8 @@ class todoCog(commands.Cog):
         ctx: discord.ApplicationContext,
         content: Option(str, required=True, description='todoの内容')
     ):
-        todoCog.todoadd(ctx.author.name, content)
+        print(content)
+        self.todoadd(ctx.author.name,content)
         await ctx.respond(f'todo番号 **{len(self.todo)}** に「**{content}**」を追加しました。')
 
     @todo.command(name='check', description='todoを確認します。')
@@ -53,22 +57,25 @@ class todoCog(commands.Cog):
         for i, data in enumerate(self.todo):
             name = data["name"]
             content = data["content"]
+            time = data["time"]
             embed.add_field(
-                name=f"{i+1}", value=f"{content}\nBy **{name}**")
+                name=f"{i+1}", value=f"{content}\n=====\nBy **{name}**\n{time} 追加")
         embed.set_footer(text="made by CinnamonSea2073", icon_url=todoCog.icon)
         await ctx.respond(embed=embed)
 
-    @todo.command(name='remove', description='todoを削除します。')
+    @todo.command(name='remove', description='todoを達成して削除します。')
     async def remove(
         self,
         ctx: discord.ApplicationContext,
         number: Option(int, required=True, description='todoの番号')
     ):
         try:
-            todoCog.todoremove(number-1)
-            await ctx.respond(f"**{number}** を削除しました。")
+            self.todoremove(number-1)
+            await ctx.respond(f"**{number}** を完了しました🎉")
+            point.GamesCog.getpoint(ctx.author.id,ctx.author.name,10000)
+            await ctx.send(f"<@{ctx.author.id}> 10,000円が追加されました！お疲れ様でした。")
         except IndexError:
-            await ctx.respond("その番号は存在しません")
+            await ctx.respond("このリストの数字で指定しやがれください")
 
 
 def setup(bot):

@@ -67,19 +67,22 @@ class TicTacToeCog(commands.Cog):
         self.bot = bot
     
     nb = SlashCommandGroup('hayaoshi', 'test')
-    
+
+    async def countdown(ctx: discord.ApplicationContext, n: int, message="{}"):
+        await ctx.respond(message.format(str(n)))
+        await asyncio.sleep(1)
+        n -= 1
+        for i in range(n):
+            await ctx.interaction.edit_original_message(content=message.format(str(n-i)))
+            await asyncio.sleep(1)
+
     @nb.command(name='test', description='button')
-    async def button(self, ctx):
+    async def button(self, ctx: discord.ApplicationContext):
         # レスポンスで定義したボタンを返す
         hoge = get_question()
-        await ctx.respond("3秒後に問題が出ます")
-        asyncio.sleep(2)
-        await ctx.send("2秒後に問題が出ます")
-        asyncio.sleep(2)
-        await ctx.send("1秒後に問題が出ます")
-        asyncio.sleep(2)
-        await ctx.respond(hoge['exam'], view=TicTacToe(hoge))
-
+        await TicTacToeCog.countdown(ctx=ctx, n=3, message="{}秒後に問題が出ます")
+        await ctx.interaction.edit_original_message(content=hoge['exam'], view=TicTacToe(hoge))
+    
     @nb.command(name="add", description="問題を追加します")
     async def ans_add(
         self,
@@ -92,6 +95,8 @@ class TicTacToeCog(commands.Cog):
         a: Option(str, required=True, description="問題の答え", )
     ):
         await ctx.respond(f"問題に **{add(content,ans1,ans2,ans3,ans4,a)}** を追加しました")
+        point.GamesCog.getpoint(ctx.author.id,ctx.author.name,10000)
+        await ctx.send(f"<@{ctx.author.id}> 10,000円が追加されました！問題追加ありがとう！！")
         #print([content,ans1,a])
 
 def setup(bot):
