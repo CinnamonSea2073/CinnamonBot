@@ -7,7 +7,6 @@ import datetime
 
 todoYaml = yaml('todo.yaml')
 
-
 class todoCog(commands.Cog):
 
     def __init__(self, bot):
@@ -55,6 +54,8 @@ class todoCog(commands.Cog):
                 name=f"{i+1}", value=f"{content}\n=====\nBy **{name}**\n{time} 追加")
         embed.set_footer(text="made by CinnamonSea2073", icon_url=todoCog.icon)
         await ctx.respond(embed=embed,delete_after=10)
+        channel = self.bot.get_partial_messageable(1005110196361760871)
+        await channel.send(embed=embed)
 
     @todo.command(name='check', description='todoを確認します。')
     async def check(
@@ -70,6 +71,8 @@ class todoCog(commands.Cog):
                 name=f"{i+1}", value=f"{content}\n=====\nBy **{name}**\n{time} 追加")
         embed.set_footer(text="made by CinnamonSea2073", icon_url=todoCog.icon)
         await ctx.respond(embed=embed,delete_after=30)
+        channel = self.bot.get_partial_messageable(1005110196361760871)
+        await channel.send(embed=embed)
 
     @todo.command(name='remove', description='todoを達成して削除します。')
     async def remove(
@@ -93,6 +96,8 @@ class todoCog(commands.Cog):
                 name=f"{i+1}", value=f"{content}\n=====\nBy **{name}**\n{time} 追加")
         embed.set_footer(text="made by CinnamonSea2073", icon_url=todoCog.icon)
         await ctx.respond(embed=embed,delete_after=10)
+        channel = self.bot.get_partial_messageable(1005110196361760871)
+        await channel.send(embed=embed)
 
 
 def setup(bot):
