@@ -41,7 +41,11 @@ class helpselectView(View):
                 discord.SelectOption(
                     label="nbコマンド",
                     emoji="🗯",
-                    description="nbさんの名言を出すコマンドです。たくさんの、コマンドが、あるんだねぇ。")
+                    description="nbさんの名言を出すコマンドです。たくさんの、コマンドが、あるんだねぇ。"),
+                discord.SelectOption(
+                    label="競馬コマンド",
+                    emoji="🗯",
+                    description="お金をかけて競馬するコマンドです。ハマりすぎには気をつけてください。")
         ])
     async def select_callback(self, select:discord.ui.Select, interaction):
         embed = discord.Embed(title=f"helpコマンド：{select.values[0]}",color=0x1e90ff)
@@ -134,11 +138,19 @@ class helpselectView(View):
             embed.add_field(
                 name=f"nbさんの名言が詰まったコマンドジャンルです。制作者：nikawamikanさん。",
                 value=f"\
-                    \n**・/itudoko home**\n褒められたときに使えるコマンドです。\
-                    \n**・/itudoko youtube**\nnbさんの名言に単語を当てはめて生成できるっぽいです。\
-                    \n**・/itudoko meigen**\nnbさんの名言をランダムで出してくれるっぽいです。\
+                    \n**・/nb home**\n褒められたときに使えるコマンドです。\
+                    \n**・/nb youtube**\nnbさんの名言に単語を当てはめて生成できるっぽいです。\
+                    \n**・/nb meigen**\nnbさんの名言をランダムで出してくれるっぽいです。\
                     "
                 )
+        elif select.values[0] == "いつどこ生成コマンド":
+            print("uioj")
+            select.disabled = True
+            embed.add_field(
+                name=f"所持金をかけて競馬をコマンドです。一着でかなりのお金がもらえます。FirestormMino作。",
+                value=f"\
+                    \n**・/keiba register**\n競馬できるコマンドです。目指せ一攫千金！\
+                   ")
         await interaction.response.edit_message(content=None,embed=embed,view=self)
 
 class helpCog(commands.Cog):
