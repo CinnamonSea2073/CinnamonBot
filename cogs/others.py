@@ -106,6 +106,21 @@ class OthersCog(commands.Cog):
 
         await ctx.respond(embed=embed)
 
+    @others.command(name="reference", description="pycodeのリファレンスだよ")
+    async def reference(
+        self,
+        ctx: discord.ApplicationContext,
+    ):
+        embed = discord.Embed(  # Embedを定義する
+            title="Pycode - reference",  # タイトル
+            color=0x1e90ff,  # フレーム色指定(今回は緑)
+            description="https://docs.pycord.dev/en/master/api.html",  # Embedの説明文 必要に応じて
+        )
+
+        embed.set_footer(text="made by CinnamonSea2073",  # フッターには開発者の情報でも入れてみる
+                         icon_url="https://images-ext-2.discordapp.net/external/2FdKTBe_yKt6m5hYRdiTAkO0i0HVPkGDOF7lkxN6nO8/%3Fsize%3D128%26overlay/https/crafatar.com/avatars/5d3e654c29bb4ae59e3a5df78372597b.png")
+        await ctx.respond(embed=embed)
+
     @others.command(name="5000oku", description="5000億円欲しい！")
     async def oku(
         self,
