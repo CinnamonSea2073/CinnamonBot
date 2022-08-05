@@ -61,7 +61,7 @@ class todoCog(commands.Cog):
         self,
         ctx: discord.ApplicationContext,
     ):
-        embed = discord.Embed(title=f"TODO (10秒後削除されます)", color=0x1e90ff,)
+        embed = discord.Embed(title=f"TODO (30秒後削除されます)", color=0x1e90ff,)
         for i, data in enumerate(self.todo):
             name = data["name"]
             content = data["content"]
@@ -69,7 +69,7 @@ class todoCog(commands.Cog):
             embed.add_field(
                 name=f"{i+1}", value=f"{content}\n=====\nBy **{name}**\n{time} 追加")
         embed.set_footer(text="made by CinnamonSea2073", icon_url=todoCog.icon)
-        await ctx.respond(embed=embed,delete_after=10)
+        await ctx.respond(embed=embed,delete_after=30)
 
     @todo.command(name='remove', description='todoを達成して削除します。')
     async def remove(
