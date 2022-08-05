@@ -1,6 +1,7 @@
 from lib.yamlutil import yaml
 import discord
 from discord.ext import commands
+from discord.ui import View
 from discord import Option, OptionChoice, SlashCommandGroup
 import random
 import cogs.point as point
@@ -10,21 +11,72 @@ from typing import List
 
 minhayaYaml = yaml('minhaya.yaml')
 minhaya = minhayaYaml.load_yaml()
+minhaya_genreYaml = yaml('minhaya_genre.yaml')
+minhaya_genre = minhaya_genreYaml.load_yaml()
+
+genre_list = [
+    OptionChoice(name='いろいろ', value='all'),
+    OptionChoice(name='ITパスポート', value='IT'),
+]
 
 def get_question():
     return random.choice(minhaya)
 
-def add(content,ans1,ans2,ans3,ans4,a):
+def add(genre,content,ans1,ans2,ans3,ans4,a):
         global minhaya
+        #genreがallだったら、適当なprintしてifを飛ばす
+        if genre == "all":
+            print("tomatomatomato")
+        if genre == "IT":
+            minhaya = minhaya_genre["it"]
+            #このprint見る限りではminhayaがちゃんとit用に上書きされてる
+            print(f"hogehogehogehogehogehoge{minhaya}\nhogehogehogehoge{minhaya[1]}")
+            minhayaYaml = minhaya_genreYaml
         for num in range(100):
             try:
                 hoge = minhaya[num]
                 print(hoge)
                 continue
             except KeyError:
+                #genreがitの時、多分minhaya["it"][num] = {"exam"...ってなってるはず
                 minhaya[num] = {"exam": content, "ans": [ans1,ans2,ans3,ans4], "a": a}
+                #genreがitの時、多分minhaya_genreYamlになってるはず
                 minhayaYaml.save_yaml(minhaya)
+                #このsaveの結果、minhaya_gen.yamlで一番最初の「it」が消えて普通の奴と同じように「0」とかから始まってしまう
                 return str(minhaya[num]["exam"])
+
+class helpselectView(View):
+    @discord.ui.select(
+            placeholder="出題するジャンルを指定してね",
+            options=[
+                discord.SelectOption(
+                    label="All",
+                    emoji="💥",
+                    description="登録されてる全ての問題から出題！",
+                    #default=True
+                    ),
+                discord.SelectOption(
+                    label="ITパスポート",
+                    emoji="💻",
+                    description="みんなもこれでITパスポートに合格してドヤろう！",
+                    #default=True
+                    )
+        ])
+    async def select_callback(self, select:discord.ui.Select, interaction):
+        embed = discord.Embed(title=f"みんはや：{select.values[0]}",color=0x1e90ff)
+        await interaction.response.edit_message(embed=embed, view=None)
+        if select.values[0] == "ITパスポート":
+            for n in range(10):
+                print("IT")
+                select.disabled = True
+                hoge = random.choice(minhaya_genre['it'])
+                await interaction.followup.send(content=hoge['exam'], view=TicTacToe(hoge))
+        elif select.values[0] == "All":
+            for n in range(10):
+                print("All")
+                select.disabled = True
+                hoge = random.choice(minhaya)
+                await interaction.followup.send(content=hoge['exam'], view=TicTacToe(hoge))
 
 class TicTacToeButton(discord.ui.Button["TicTacToe"]):
     def __init__(self, label: str):
@@ -76,24 +128,30 @@ class TicTacToeCog(commands.Cog):
             await ctx.interaction.edit_original_message(content=message.format(str(n-i)))
             await asyncio.sleep(1)
 
-    @nb.command(name='get', description='問題をランダムで排出します')
+    @nb.command(name='get', description='登録されている全ての問題からランダムで排出します')
     async def button(self, ctx: discord.ApplicationContext):
         # レスポンスで定義したボタンを返す
         hoge = get_question()
         await TicTacToeCog.countdown(ctx=ctx, n=3, message="{}秒後に問題が出ます")
         await ctx.interaction.edit_original_message(content=hoge['exam'], view=TicTacToe(hoge))
+
+    @nb.command(name='genre_get', description='ジャンルを指定してから問題を10問ほどランダムで排出します')
+    async def button_genre(self, ctx: discord.ApplicationContext):
+        view = helpselectView()
+        await ctx.respond("出題するジャンルを指定してね",view=view)
     
-    @nb.command(name="add", description="問題を追加します")
+    @nb.command(name="add", description="ジャンルを指定して問題を追加します")
     async def ans_add(
         self,
         ctx: discord.ApplicationContext,
+        genre: Option(str, choices=genre_list, required=True, description="ジャンルを指定してね", ),
         content: Option(str, required=True, description="問題の文章です", ),
         ans1: Option(str, required=True, description="【間違いを入力】問題の選択肢1", ),
         ans2: Option(str, required=True, description="【間違いを入力】問題の選択肢2", ),
         ans3: Option(str, required=True, description="【間違いを入力】問題の選択肢3", ),
         a: Option(str, required=True, description="【答えを入力】問題の答え", )
     ):
-        await ctx.respond(f"問題に **{add(content,ans1,ans2,ans3,a,a)}** を追加しました")
+        await ctx.respond(f"ジャンル：**{genre}**\n問題に **{add(genre,content,ans1,ans2,ans3,a,a)}** を追加しました")
         point.GamesCog.getpoint(ctx.author.id,ctx.author.name,10000)
         await ctx.send(f"<@{ctx.author.id}> 10,000円が追加されました！問題追加ありがとう！！")
         #print([content,ans1,a])
