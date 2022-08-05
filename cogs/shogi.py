@@ -16,7 +16,7 @@ minhaya_genre = minhaya_genreYaml.load_yaml()
 
 genre_list = [
     OptionChoice(name='いろいろ', value='all'),
-    OptionChoice(name='ITパスポート', value='IT'),
+    #OptionChoice(name='ITパスポート', value='IT'),
 ]
 
 def get_question():
@@ -56,9 +56,15 @@ class helpselectView(View):
                     #default=True
                     ),
                 discord.SelectOption(
+                    label="雑学とか",
+                    emoji="💬",
+                    description="いろんな知識を習得して雑学王になろう！",
+                    #default=True
+                    ),
+                discord.SelectOption(
                     label="ITパスポート",
                     emoji="💻",
-                    description="みんなもこれでITパスポートに合格してドヤろう！",
+                    description="みんなもこれでITパスポートに合格してドヤろう！※PCでの参加を推奨します",
                     #default=True
                     )
         ])
@@ -70,13 +76,23 @@ class helpselectView(View):
                 print("IT")
                 select.disabled = True
                 hoge = random.choice(minhaya_genre['it'])
-                await interaction.followup.send(content=hoge['exam'], view=TicTacToe(hoge))
+                await interaction.followup.send(content=hoge['exam'], view=TicTacToe_row(hoge))
+        elif select.values[0] == "雑学とか":
+            for n in range(10):
+                print("雑学")
+                select.disabled = True
+                hoge = random.choice(minhaya)
+                await interaction.followup.send(content=hoge['exam'], view=TicTacToe_row(hoge))
         elif select.values[0] == "All":
             for n in range(10):
                 print("All")
                 select.disabled = True
-                hoge = random.choice(minhaya)
-                await interaction.followup.send(content=hoge['exam'], view=TicTacToe(hoge))
+                hogehoge = random.choice([0,1])
+                if hogehoge == 0:
+                    hoge = random.choice(minhaya)
+                elif hogehoge == 1:
+                    hoge = random.choice(minhaya_genre['it'])
+                await interaction.followup.send(content=hoge['exam'], view=TicTacToe_row(hoge))
 
 class TicTacToeButton(discord.ui.Button["TicTacToe"]):
     def __init__(self, label: str):
@@ -98,6 +114,26 @@ class TicTacToeButton(discord.ui.Button["TicTacToe"]):
 
         await interaction.response.edit_message(content=content, view=view)
 
+class TicTacToe_RowButton(discord.ui.Button["TicTacToe"]):
+    def __init__(self, label: str):
+        super().__init__(style=discord.ButtonStyle.secondary, label=label)
+
+    async def callback(self, interaction: discord.Interaction):
+        assert self.view is not None
+        view: TicTacToe = self.view
+
+        self.style = discord.ButtonStyle.danger
+        content = f'{self.view.exam}\nはずれ'
+        if self.label == self.view.a:
+            self.style = discord.ButtonStyle.success
+            content = f'{self.view.exam}\n<@{interaction.user.id}> 正解！ **30,000円** を追加します。'
+            point.GamesCog.getpoint(interaction.user.id,interaction.user.name,10000)
+            print(interaction.user.id)
+            for child in self.view.children:
+                child.disabled = True
+
+        await interaction.response.edit_message(content=content, view=view)
+
 
 class TicTacToe(discord.ui.View):
     children: List[TicTacToeButton]
@@ -110,6 +146,18 @@ class TicTacToe(discord.ui.View):
         random.shuffle(hoge)
         for v in hoge:
             self.add_item(TicTacToeButton(v))
+
+class TicTacToe_row(discord.ui.View):
+    children: List[TicTacToeButton]
+
+    def __init__(self, data):
+        super().__init__(timeout=190)
+        self.a = data["a"]
+        self.exam = data["exam"]
+        hoge = data.get('ans')
+        random.shuffle(hoge)
+        for v in hoge:
+            self.add_item(TicTacToe_RowButton(v))
 
 
 class TicTacToeCog(commands.Cog):
@@ -128,17 +176,17 @@ class TicTacToeCog(commands.Cog):
             await ctx.interaction.edit_original_message(content=message.format(str(n-i)))
             await asyncio.sleep(1)
 
-    @nb.command(name='get', description='登録されている全ての問題からランダムで排出します')
+    @nb.command(name='get', description='【競技用推奨】登録されている問題からランダムで排出します')
     async def button(self, ctx: discord.ApplicationContext):
         # レスポンスで定義したボタンを返す
         hoge = get_question()
         await TicTacToeCog.countdown(ctx=ctx, n=3, message="{}秒後に問題が出ます")
         await ctx.interaction.edit_original_message(content=hoge['exam'], view=TicTacToe(hoge))
 
-    @nb.command(name='genre_get', description='ジャンルを指定してから問題を10問ほどランダムで排出します')
+    @nb.command(name='genre_get', description='【カウントダウン等が無いため、競技非推奨】ジャンルを指定してから問題を10問ほどランダムで排出します')
     async def button_genre(self, ctx: discord.ApplicationContext):
         view = helpselectView()
-        await ctx.respond("出題するジャンルを指定してね",view=view)
+        await ctx.respond("出題するジャンルを指定してね\n**PCを推奨します**",view=view)
     
     @nb.command(name="add", description="ジャンルを指定して問題を追加します")
     async def ans_add(
