@@ -139,7 +139,7 @@ class helpselectView(View):
                     \n**・/itudoko meigen**\nnbさんの名言をランダムで出してくれるっぽいです。\
                     "
                 )
-        await interaction.response.edit_message(embed=embed,view=self)
+        await interaction.response.edit_message(content=None,embed=embed,view=self)
 
 class helpCog(commands.Cog):
 
