@@ -6,6 +6,7 @@ from googletrans import Translator
 import random
 import copy
 import os
+import cogs.point as point
 
 itudokoYaml = yaml("itudoko.yaml")
 
@@ -82,6 +83,8 @@ class ItudokoCog(commands.Cog):
         print(data)
         itudokoYaml.save_yaml(data)
         await ctx.respond(f"{choice}に{content}を追加しました。")
+        point.GamesCog.getpoint(ctx.author.id,ctx.author.name,10000)
+        await ctx.respond(f"追加ありがとう！10,000円が追加されました。")
 
     @itudoko.command(name='trans', description='再翻訳で支離滅裂な文章に変換します')
     async def itudokotrans(

@@ -6,6 +6,7 @@ from googletrans import Translator
 import random
 import copy
 from lib.yamlutil import yaml
+import cogs.point as point
 
 path = 'hogestory.yaml'
 
@@ -84,7 +85,8 @@ class HogestoryCog(commands.Cog):
         hogedata = HogestoryCog.read_yaml()
         hogedata.append(content)
         HogestoryCog.write_yaml(hogedata)
-
+        point.GamesCog.getpoint(ctx.author.id,ctx.author.name,10000)
+        await ctx.respond(f"追加ありがとう！10,000円が追加されました。")
         embed = discord.Embed(color=0x1e90ff, description=f"{content}を追加しました。")
         embed.set_footer(text="made by CinnamonSea2073",
                          icon_url=HogestoryCog.icon)
