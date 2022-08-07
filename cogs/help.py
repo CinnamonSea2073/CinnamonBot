@@ -45,7 +45,11 @@ class helpselectView(View):
                 discord.SelectOption(
                     label="競馬コマンド",
                     emoji="🗯",
-                    description="お金をかけて競馬するコマンドです。ハマりすぎには気をつけてください。")
+                    description="お金をかけて競馬するコマンドです。ハマりすぎには気をつけてください。"),
+                discord.SelectOption(
+                    label="Statコマンド",
+                    emoji="📇",
+                    description="マイクラ鯖の情報を取得するやつです。")
         ])
     async def select_callback(self, select:discord.ui.Select, interaction):
         embed = discord.Embed(title=f"helpコマンド：{select.values[0]}",color=0x1e90ff)
@@ -150,6 +154,15 @@ class helpselectView(View):
                 name=f"所持金をかけて競馬をコマンドです。一着でかなりのお金がもらえます。FirestormMino作。",
                 value=f"\
                     \n**・/keiba register**\n競馬できるコマンドです。目指せ一攫千金！\
+                   ")
+        elif select.values[0] == "Statコマンド":
+            print("uioj")
+            select.disabled = True
+            embed.add_field(
+                name=f"昔作ったコマンドのリメイク版。めっちゃ見やすくなったしめっちゃ機能的になりました。成長を感じたコマンドです。",
+                value=f"\
+                    \n**・/stat get**\n情報を取得するコマンドです。今参加してるメンバーとかを確認できるよ！\
+                    \n**・/stat set**\n鯖のurlを設定するコマンドです。何らかの要因でurlが変わったときに使おう。\
                    ")
         await interaction.response.edit_message(content=None,embed=embed,view=self)
 

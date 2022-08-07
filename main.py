@@ -32,6 +32,7 @@ bot.load_extension('cogs.todo')
 bot.load_extension('cogs.shogi')
 bot.load_extension('cogs.nb')
 bot.load_extension('cogs.keiba')
-bot.load_extension('cogs.multiplay')
+#bot.load_extension('cogs.multiplay')
+bot.load_extension('cogs.stat')
 
 bot.run(TOKEN)
