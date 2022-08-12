@@ -23,6 +23,7 @@ class StatCog(commands.Cog):
 
     @stat.command(name="get", description="ふぃぼ鯖の状態を表示します")
     async def stat_get(self,ctx: discord.ApplicationContext):
+        await ctx.respond("読み込み中...(5秒程度かかります)") 
         async with aiohttp.ClientSession() as session:
             async with session.get(server_url) as response:
                 resp = await response.json()
@@ -47,9 +48,9 @@ class StatCog(commands.Cog):
                 embed.add_field(inline=False,name="ソフトウェア",value=resp['software'])
                 embed.add_field(inline=False,name="現在の接続中のプレイヤー",value=f"**{resp['players']['online']}/{resp['players']['max']}**\n{players}")
             embed.set_footer(text="made by CinnamonSea2073", icon_url=icon)
-            await ctx.respond(embed=embed) 
+            await ctx.send(embed=embed) 
         except:
-            ctx.respond(f"エラーが発生しました。APIを確認してからもう一度お試しください。\n{server_url}") 
+            await ctx.send("エラーが発生しました。APIを確認してからもう一度お試しください。\n{server_url}") 
                 
     @stat.command(name="set", description="ふぃぼ鯖のurlを設定します。")
     async def stat_set(

@@ -90,6 +90,14 @@ class OthersCog(commands.Cog):
         contents = contents.replace("\\n", "\n")
         await ctx.respond(f"```{code}\n{contents}``` ")
 
+    @others.command(name="latency", description="レイテンシ表示")
+    async def latency(
+        self,
+        ctx: discord.ApplicationContext,
+    ):
+        hoge = self.bot.latency
+        await ctx.respond(f"{str(hoge)}")
+
     @others.command(name="github", description="このボットのコードだよ")
     async def github(
         self,

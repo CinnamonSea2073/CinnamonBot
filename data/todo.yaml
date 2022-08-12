@@ -22,12 +22,6 @@
 - content: 所持金のランキング的なのほしいよね
   name: CinnamonSea2073.zip
   time: 08月05日 08:12
-- content: なんか単語とか文章追加する奴でお金貰えるようにする
-  name: CinnamonSea2073.zip
-  time: 08月05日 10:38
-- content: ToDo色んなとこで追加してると最新わかりにくいのでチャンネル1箇所を登録しておいて追加や削除が行われたときに更新する
-  name: nikawamikan
-  time: 08月05日 10:39
 - content: 「todoで誰が実行するかわかるようにする」なんですけど、todoでのデータの仕様わけわかめなので誰かお願いできませんか...？/todo do
     番号 で自分がやるって宣言したり、宣言したのをやっぱやめたりできると助かります。
   name: CinnamonSea2073.zip
@@ -35,9 +29,6 @@
 - content: todoチェックしてから消すまでの間に誰かがtodo消してたら番号リセットされて間違えて違うもの消してしまいそうなのどうにかできんそす？
   name: CinnamonSea2073.zip
   time: 08月05日 11:01
-- content: ハズレで塗り替えできたら追加ポイント（鬼畜）
-  name: CinnamonSea2073.zip
-  time: 08月05日 11:19
 - content: statとか登録されてる問題数とか出せるやつ
   name: CinnamonSea2073.zip
   time: 08月05日 13:02
@@ -50,3 +41,36 @@
 - content: しなbotのお金の使い道増やす
   name: CinnamonSea2073.zip
   time: 08月05日 22:33
+- content: Ubuntuでマイクラ鯖動かしたい（）
+  name: oseyuki_jp🌽
+  time: 08月06日 00:30
+- content: todoにコメント的な機能つけたい。例えば、〇番に対して、「それ～じゃない？」みたいになんか言えるやつ
+  name: CinnamonSea2073.zip
+  time: 08月06日 00:53
+- content: Money系のクラスを別途管理したい
+  name: nikawamikan
+  time: 08月06日 10:41
+- content: 謎の金銭追加遅延の調査
+  name: CinnamonSea2073.zip
+  time: 08月06日 11:04
+- content: マルチプレイできるpy作ったけど初期化してくれないのでだれか原因解明お願いします...gitに載ってます。完成したらライブラリ化していろんなゲームをマルチにできると思うんで...
+  name: CinnamonSea2073.zip
+  time: 08月06日 12:19
+- content: 鉄製造機つくりやがれください
+  name: CinnamonSea2073.zip
+  time: 08月08日 09:00
+- content: れもんさん用にスラッシュコマンドのQiitaでも書こう
+  name: CinnamonSea2073.zip
+  time: 08月08日 11:38
+- content: APIとPython連携させるアレ作る
+  name: nikawamikan
+  time: 08月08日 12:50
+- content: while構文ってなんぞやなので調べてみる
+  name: CinnamonSea2073.zip
+  time: 08月09日 14:05
+- content: コマンドパネル誰か使い方読んでおいてください（）https://rockyhawk99.gitbook.io/rockyhawk-wiki/
+  name: nikawamikan
+  time: 08月11日 12:11
+- content: コマンドパネル誰か使い方読んでおいてください（）
+  name: nikawamikan
+  time: 08月11日 12:11

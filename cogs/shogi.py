@@ -22,16 +22,9 @@ genre_list = [
 def get_question():
     return random.choice(minhaya)
 
-def add(genre,content,ans1,ans2,ans3,ans4,a):
+def add(content,ans1,ans2,ans3,ans4,a):
         global minhaya
         #genreがallだったら、適当なprintしてifを飛ばす
-        if genre == "all":
-            print("tomatomatomato")
-        if genre == "IT":
-            minhaya = minhaya_genre["it"]
-            #このprint見る限りではminhayaがちゃんとit用に上書きされてる
-            print(f"hogehogehogehogehogehoge{minhaya}\nhogehogehogehoge{minhaya[1]}")
-            minhayaYaml = minhaya_genreYaml
         for num in range(100):
             try:
                 hoge = minhaya[num]
@@ -106,8 +99,8 @@ class TicTacToeButton(discord.ui.Button["TicTacToe"]):
         content = f'{self.view.exam}\nはずれ'
         if self.label == self.view.a:
             self.style = discord.ButtonStyle.success
-            content = f'{self.view.exam}\n<@{interaction.user.id}> 正解！ **10,000円** を追加します。'
-            point.GamesCog.getpoint(interaction.user.id,interaction.user.name,10000)
+            content = f'{self.view.exam}\n<@{interaction.user.id}> 正解！ **30,000円** を追加します。'
+            point.GamesCog.getpoint(interaction.user.id,None,30000)
             print(interaction.user.id)
             for child in self.view.children:
                 child.disabled = True
@@ -120,13 +113,13 @@ class TicTacToe_RowButton(discord.ui.Button["TicTacToe"]):
 
     async def callback(self, interaction: discord.Interaction):
         assert self.view is not None
-        view: TicTacToe = self.view
+        view: TicTacToe_row = self.view
 
         self.style = discord.ButtonStyle.danger
         content = f'{self.view.exam}\nはずれ'
         if self.label == self.view.a:
             self.style = discord.ButtonStyle.success
-            content = f'{self.view.exam}\n<@{interaction.user.id}> 正解！ **30,000円** を追加します。'
+            content = f'{self.view.exam}\n<@{interaction.user.id}> 正解！ **10,000円** を追加します。'
             point.GamesCog.getpoint(interaction.user.id,interaction.user.name,10000)
             print(interaction.user.id)
             for child in self.view.children:
@@ -148,7 +141,7 @@ class TicTacToe(discord.ui.View):
             self.add_item(TicTacToeButton(v))
 
 class TicTacToe_row(discord.ui.View):
-    children: List[TicTacToeButton]
+    children: List[TicTacToe_RowButton]
 
     def __init__(self, data):
         super().__init__(timeout=190)
@@ -192,14 +185,13 @@ class TicTacToeCog(commands.Cog):
     async def ans_add(
         self,
         ctx: discord.ApplicationContext,
-        genre: Option(str, choices=genre_list, required=True, description="ジャンルを指定してね", ),
         content: Option(str, required=True, description="問題の文章です", ),
         ans1: Option(str, required=True, description="【間違いを入力】問題の選択肢1", ),
         ans2: Option(str, required=True, description="【間違いを入力】問題の選択肢2", ),
         ans3: Option(str, required=True, description="【間違いを入力】問題の選択肢3", ),
         a: Option(str, required=True, description="【答えを入力】問題の答え", )
     ):
-        await ctx.respond(f"ジャンル：**{genre}**\n問題に **{add(genre,content,ans1,ans2,ans3,a,a)}** を追加しました")
+        await ctx.respond(f"問題に **{add(content,ans1,ans2,ans3,a,a)}** を追加しました")
         point.GamesCog.getpoint(ctx.author.id,ctx.author.name,10000)
         await ctx.send(f"<@{ctx.author.id}> 10,000円が追加されました！問題追加ありがとう！！")
         #print([content,ans1,a])
