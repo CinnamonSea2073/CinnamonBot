@@ -1,15 +1,9 @@
 ﻿- content: Qiitaに書きたい記事かく
   name: nikawamikan
   time: 08月04日 12:52
-- content: はやくふぃぼ鯖3rdたてろみかん
-  name: nikawamikan
-  time: 08月04日 12:52
 - content: さらにタスク増やすようで申し訳ないんですが、20問連続出題機能欲しいです(できれば終わったときに誰が何問正解したかの集計も.....)
   name: ふぃぼなっち。
   time: 08月04日 21:24
-- content: todoの「○ を完了しました」って文に、何を完了したのか載せたいのでみかんさんお願いします....（yamlの仕様なぞ）
-  name: CinnamonSea2073.zip
-  time: 08月05日 01:20
 - content: 麻雀おぼえる
   name: CinnamonSea2073.zip
   time: 08月05日 01:27
@@ -56,9 +50,6 @@
 - content: マルチプレイできるpy作ったけど初期化してくれないのでだれか原因解明お願いします...gitに載ってます。完成したらライブラリ化していろんなゲームをマルチにできると思うんで...
   name: CinnamonSea2073.zip
   time: 08月06日 12:19
-- content: 鉄製造機つくりやがれください
-  name: CinnamonSea2073.zip
-  time: 08月08日 09:00
 - content: れもんさん用にスラッシュコマンドのQiitaでも書こう
   name: CinnamonSea2073.zip
   time: 08月08日 11:38
@@ -74,3 +65,9 @@
 - content: コマンドパネル誰か使い方読んでおいてください（）
   name: nikawamikan
   time: 08月11日 12:11
+- content: 帰ったらしなもんとふぃぼなっちをランダムな割合で混ぜるコマンドつくろ
+  name: CinnamonSea2073.zip
+  time: 08月13日 12:53
+- content: 名前ランダム生成するコマンド作る
+  name: CinnamonSea2073.zip
+  time: 08月13日 12:56
