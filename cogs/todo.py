@@ -30,9 +30,34 @@ class todoCog(commands.Cog):
         todoYaml.save_yaml(self.todo)
 
     def todoremove(self, number):
+        for i, data in enumerate(self.todo):
+            content = data["content"]
+            if i == number:
+                break
         self.todo.pop(number)
         todoYaml.save_yaml(self.todo)
-        #todoCog.todoliset()
+        return content
+
+    def todoresalt(self):
+        hoge = False
+        embed2 = discord.Embed(title=f"TODO (10秒後削除されます)", color=0x1e90ff,)
+        embed = discord.Embed(title=f"TODO (10秒後削除されます)", color=0x1e90ff,)
+        for i, data in enumerate(self.todo):
+            name = data["name"]
+            content = data["content"]
+            time = data["time"]
+            if i+1 > 25:
+                hoge = True
+                embed2.add_field(
+                    name=f"{i+1}", value=f"{content}\n=====\nBy **{name}**\n{time} 追加")
+            embed.add_field(
+                name=f"{i+1}", value=f"{content}\n=====\nBy **{name}**\n{time} 追加")
+        embed.set_footer(text="made by CinnamonSea2073", icon_url=todoCog.icon)
+        embed2.set_footer(text="made by CinnamonSea2073", icon_url=todoCog.icon)
+        if hoge == True:
+            return [embed,embed2]
+        else:
+            return [embed]
 
     todo = SlashCommandGroup('todo', 'superchat')
 
@@ -45,34 +70,20 @@ class todoCog(commands.Cog):
         print(content)
         self.todoadd(ctx.author.name,content)
         await ctx.respond(f'todo番号 **{len(self.todo)}** に「**{content}**」を追加しました。\ntodoリストを再度表示するには、/todo checkを実行してください。')
-        embed = discord.Embed(title=f"TODO (10秒後削除されます)", color=0x1e90ff,)
-        for i, data in enumerate(self.todo):
-            name = data["name"]
-            content = data["content"]
-            time = data["time"]
-            embed.add_field(
-                name=f"{i+1}", value=f"{content}\n=====\nBy **{name}**\n{time} 追加")
-        embed.set_footer(text="made by CinnamonSea2073", icon_url=todoCog.icon)
-        await ctx.respond(embed=embed,delete_after=10)
+        embeds = self.todoresalt()
+        await ctx.respond(embeds=embeds,delete_after=10)
         channel = self.bot.get_partial_messageable(1005110196361760871)
-        await channel.send(embed=embed)
+        await channel.send(embeds=embeds)
 
     @todo.command(name='check', description='todoを確認します。')
     async def check(
         self,
         ctx: discord.ApplicationContext,
     ):
-        embed = discord.Embed(title=f"TODO (30秒後削除されます)", color=0x1e90ff,)
-        for i, data in enumerate(self.todo):
-            name = data["name"]
-            content = data["content"]
-            time = data["time"]
-            embed.add_field(
-                name=f"{i+1}", value=f"{content}\n=====\nBy **{name}**\n{time} 追加")
-        embed.set_footer(text="made by CinnamonSea2073", icon_url=todoCog.icon)
-        await ctx.respond(embed=embed,delete_after=30)
+        embeds = self.todoresalt()
+        await ctx.respond(embeds=embeds,delete_after=10)
         channel = self.bot.get_partial_messageable(1005110196361760871)
-        await channel.send(embed=embed)
+        await channel.send(embeds=embeds)
 
     @todo.command(name='remove', description='todoを達成して削除します。')
     async def remove(
@@ -81,24 +92,16 @@ class todoCog(commands.Cog):
         number: Option(int, required=True, description='todoの番号')
     ):
         try:
-            self.todoremove(number-1)
-            await ctx.respond(f"**{number}** を完了しました🎉\ntodoリストを再度表示するには、/todo checkを実行してください。")
+            content = self.todoremove(number-1)
+            await ctx.respond(f"**{number}** **{content}** を完了しました🎉\ntodoリストを再度表示するには、/todo checkを実行してください。")
             point.GamesCog.getpoint(ctx.author.id,ctx.author.name,10000)
             await ctx.send(f"<@{ctx.author.id}> 10,000円が追加されました！お疲れ様でした。")
         except IndexError:
             await ctx.respond("このリストの数字で指定しやがれください")
-        embed = discord.Embed(title=f"TODO (10秒後削除されます)", color=0x1e90ff,)
-        for i, data in enumerate(self.todo):
-            name = data["name"]
-            content = data["content"]
-            time = data["time"]
-            embed.add_field(
-                name=f"{i+1}", value=f"{content}\n=====\nBy **{name}**\n{time} 追加")
-        embed.set_footer(text="made by CinnamonSea2073", icon_url=todoCog.icon)
-        await ctx.respond(embed=embed,delete_after=10)
+        embeds = self.todoresalt()
+        await ctx.respond(embeds=embeds,delete_after=10)
         channel = self.bot.get_partial_messageable(1005110196361760871)
-        await channel.send(embed=embed)
-
+        await channel.send(embeds=embeds)
 
 def setup(bot):
     bot.add_cog(todoCog(bot))
