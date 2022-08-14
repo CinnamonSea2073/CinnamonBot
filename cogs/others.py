@@ -4,6 +4,7 @@ from discord import Option, SlashCommandGroup
 from lib.faceutil import get_face, UUID_NotFoundException
 from lib.chouen import getChouen
 from discord_buttons_plugin import *
+import random
 
 buttons = "hoge"
 
@@ -26,7 +27,7 @@ class OthersCog(commands.Cog):
         name: Option(str, required=False, description="名前を入力してね", )
     ):
         if not name:
-            name = ctx.author
+            name = ctx.author.name
         await ctx.respond(f"こんにちは！ {name} さん！")
 
     @others.command(name="mention", description="しなもんにメンションを爆撃します")
@@ -133,36 +134,42 @@ class OthersCog(commands.Cog):
     async def oku(
         self,
         ctx: discord.ApplicationContext,
-        up: Option(str, required=True, description="上文字列", ),
-        down: Option(str, required=True, description="下文字列", )
+        up: Option(str, required=False, description="上文字列", ),
+        down: Option(str, required=False, description="下文字列", )
     ):
         await ctx.respond(getChouen(top=up, bottom=down))
 
     @others.command(name="test", description="tessssssssssst")
     async def test(
         self,
-        ctx: discord.ApplicationContext,
+        ctx: discord.ApplicationContext
     ):
-        await buttons.send(
-            content="テストボタン",
-            channel=ctx.channel.id,
-            components=[
-                ActionRow([
-                    Button(
-                        label="Hello",
-                        style=ButtonType().Primary,
-                        custom_id="button_hello"
-                    )
-                ]), ActionRow([
-                    Button(
-                        label="Ephemeral",
-                        style=ButtonType().Danger,
-                        custom_id="button_ephemeral"
-                    )
-                ])
-            ]
-        )
+        await ctx.respond("え？")
 
+    @others.command(name="words", description="50音からランダムで3文字出力します")
+    async def words(
+        self,
+        ctx: discord.ApplicationContext
+    ):
+        word = [
+                    "あ","い","う","え","お",
+                    "か","き","く","け","こ",
+                    "さ","し","す","せ","そ",
+                    "た","ち","つ","て","と",
+                    "な","に","ぬ","ね","の",
+                    "は","ひ","ふ","へ","ほ",
+                    "ま","み","む","め","も",
+                    "や","わ","ゆ","を","よ",
+                    "ん","ゃ","ゅ","ょ","ぇ",
+                    "ぱ","ぴ","ぷ","ぺ","ぽ",
+                    "ば","び","ぶ","べ","ぼ",
+                    "だ","ぢ","づ","で","ど",
+                    "が","ぎ","ぐ","げ","ご"
+                ]
+        hoge = []
+        for n in range(3):
+            hoge.append(random.choice(word))
+        await ctx.respond("".join(hoge))
 
 def setup(bot):
     bot.add_cog(OthersCog(bot))
