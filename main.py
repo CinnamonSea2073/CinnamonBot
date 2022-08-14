@@ -35,5 +35,6 @@ bot.load_extension('cogs.keiba')
 #bot.load_extension('cogs.multiplay')
 bot.load_extension('cogs.stat')
 bot.load_extension('cogs.timer')
+bot.load_extension('cogs.talk')
 
 bot.run(TOKEN)
