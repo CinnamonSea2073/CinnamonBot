@@ -16,7 +16,7 @@ class uidselectView(View):
             options=l
         )
     async def select_callback(self, select:discord.ui.Select, interaction):
-        embed = await GenshinCog.getApi(uid=select.values[0])
+        embed = await GenshinCog.getApi(self,uid=select.values[0])
         await interaction.response.edit_message(content=None,embed=embed[0],view=self)
 
 class GenshinCog(commands.Cog):
