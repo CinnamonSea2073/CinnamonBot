@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord.commands import Option,SlashCommandGroup
 import aiohttp
 from lib.yamlutil import yaml
+import traceback
 
 uidListYaml = yaml(path='uid.yaml')
 uidList = uidListYaml.load_yaml()
@@ -28,7 +29,7 @@ class uidselectView(View):
                 #style=discord.ButtonStyle.gray,
             #)
             #view.add_item(button)
-        await interaction.response.edit_message(content=None,embed=embed[0],view=None)
+        await interaction.response.edit_message(content=None,embed=embed,view=None)
 
 class GenshinCog(commands.Cog):
 
@@ -59,12 +60,15 @@ class GenshinCog(commands.Cog):
                 icon_url=f"https://enka.network/ui/{hoge}.png"
             )
             embed.add_field(inline=False,name="ユーザーネーム",value=resp['playerInfo']['nickname'])
-            embed.add_field(inline=False,name="ステータスメッセージ",value=resp['playerInfo']['signature'])
+            try:
+                embed.add_field(inline=False,name="ステータスメッセージ",value=resp['playerInfo']['signature'])
+            except:
+                print("hoge")
             embed.add_field(inline=False,name="レベル",value=resp['playerInfo']['level'])
             embed.add_field(inline=False,name="世界ランク",value=resp['playerInfo']['worldLevel'])
             embed.add_field(inline=False,name="深境螺旋",value=f"第{resp['playerInfo']['towerFloorIndex']}層 第{resp['playerInfo']['towerLevelIndex']}間")
             embed.set_footer(text="made by CinnamonSea2073", icon_url=icon)
-            return embed, resp['playerInfo']['nickname']
+            return embed
         except:
             embed = discord.Embed( 
                     title=f"エラーが発生しました。APIを確認してからもう一度お試しください。\n{url}",
@@ -109,15 +113,41 @@ class GenshinCog(commands.Cog):
         print(uid)
         user = await self.getApi(uid)
         try:
-            print(user[1])
-            uidList[str(uid)] = {"uid": uid, "name": ctx.author.name, "user": user[1]}
+            url = f"https://enka.network/u/{uid}/__data.json"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    resp = await response.json()
+            uidList[str(uid)] = {"uid": uid, "name": ctx.author.name, "user": resp['playerInfo']['nickname']}
             uidListYaml.save_yaml(uidList)
             global l
-            l.append(discord.SelectOption(label=str(uid), description=user[1]))
-            await ctx.send(f"<@{ctx.author.id}>\nUID多分設定できたで\nuid : **{uid}**\nusername : **{user[1]}**")
+            l.append(discord.SelectOption(label=str(uid), description=resp['playerInfo']['nickname']))
+            await ctx.send(f"<@{ctx.author.id}>\nUID多分設定できたで\nuid : **{uid}**\nusername : **{resp['playerInfo']['nickname']}**")
         except:
             await ctx.send(f"<@{ctx.author.id}>\n<@698127042977333248>\nなんかエラー起きたよ\nuid : **{uid}**\nhttps://enka.network/u/{uid}/__data.json")
+            await self.bot.get_partial_messageable(1009731664412426240).send(f"```{traceback.format_exc()}``")
             raise
+
+    @genshin.command(name="getList", description="登録されてるプレイヤーの情報をまとめて取得します")
+    async def genshin_getList(
+            self,
+            ctx: discord.ApplicationContext,
+    ):
+        await ctx.respond("読み込み中")
+        embed = discord.Embed( 
+            title="原神ステータスだよ",
+            color=0x1e90ff, 
+            )
+        for uid in uidList:
+            url = f"https://enka.network/u/{uid}/__data.json"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    resp = await response.json()
+            embed.add_field(
+                name=resp['playerInfo']['nickname'],
+                value=f"UID：{uid}\nレベル：{resp['playerInfo']['level']}\nランク：{resp['playerInfo']['worldLevel']}"
+            )
+        embed.set_footer(text="made by CinnamonSea2073", icon_url=icon)
+        await ctx.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(GenshinCog(bot))
