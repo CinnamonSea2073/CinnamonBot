@@ -1,6 +1,7 @@
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
+import traceback
 
 bot = commands.Bot(debug_guilds=[879288794560471050])
 load_dotenv()
@@ -15,6 +16,7 @@ async def on_application_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.respond(error, ephemeral=True)
     else:
+        await bot.get_partial_messageable(1009731664412426240).send(traceback.format_exc())
         raise error
 
 
@@ -37,5 +39,6 @@ bot.load_extension('cogs.stat')
 bot.load_extension('cogs.timer')
 bot.load_extension('cogs.talk')
 bot.load_extension('cogs.genshin')
+bot.load_extension('cogs.test')
 
 bot.run(TOKEN)
