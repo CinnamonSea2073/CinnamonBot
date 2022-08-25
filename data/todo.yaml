@@ -62,18 +62,30 @@
 - content: コマンドパネル誰か使い方読んでおいてください（）https://rockyhawk99.gitbook.io/rockyhawk-wiki/
   name: nikawamikan
   time: 08月11日 12:11
-- content: コマンドパネル誰か使い方読んでおいてください（）
-  name: nikawamikan
-  time: 08月11日 12:11
 - content: 帰ったらしなもんとふぃぼなっちをランダムな割合で混ぜるコマンドつくろ
   name: CinnamonSea2073.zip
   time: 08月13日 12:53
 - content: 名前ランダム生成するコマンド作る
   name: CinnamonSea2073.zip
   time: 08月13日 12:56
-- content: ハエ叩き
-  name: aluM_8bit
-  time: 08月14日 12:37
 - content: 村人の施設いい感じにしてほしい
   name: nikawamikan
   time: 08月17日 18:55
+- content: 原神のhayaoshi
+  name: CinnamonSea2073.zip
+  time: 08月21日 23:11
+- content: LanaNealsenの管理対象ロールを自動で指定チャネルへ列挙するように修正する
+  name: nikawamikan
+  time: 08月24日 18:15
+- content: 早押しクイズ系の実装をリファクタリングしたいのでたぶんする
+  name: nikawamikan
+  time: 08月24日 18:18
+- content: LanaNealsenに現時点で存在するRoleを管理対象に追加や、解除を行う機能を追加する
+  name: nikawamikan
+  time: 08月24日 18:22
+- content: LanaNealsenのドキュメントを作成してリンクを貼り付ける
+  name: nikawamikan
+  time: 08月24日 18:23
+- content: roleが25個超えたときの挙動を考える
+  name: nikawamikan
+  time: 08月24日 21:05

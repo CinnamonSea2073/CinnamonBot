@@ -14,5 +14,9 @@ class TestCog(commands.Cog):
     async def ping(self, ctx: discord.ApplicationContext,):
         await ctx.respond("pong!")
 
+    @test.command(name="debug", description="debugするで")
+    async def ping(self, ctx: discord.ApplicationContext,):
+        await ctx.respond("pong!")
+
 def setup(bot):
     bot.add_cog(TestCog(bot))

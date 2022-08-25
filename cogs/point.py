@@ -261,7 +261,7 @@ class GamesCog(commands.Cog):
         money = n*3200
 
         # 金銭消費しないならここをFalseに変えてね
-        hogehogehogehoge = True
+        hogehogehogehoge = False
         if hogehogehogehoge == True:
             if GamesCog.point(id, name) < money:
                 await ctx.send(f"<@{id}> お金が足りません。/money up で増やしてください。\nあなたの所持金は**{GamesCog.point(id,name)}￥**です。")
@@ -273,6 +273,7 @@ class GamesCog(commands.Cog):
                 iscommand = True
         elif hogehogehogehoge == False:
             iscommand = True
+            await ctx.send(f"<@{id}> お金は使わなかったよ！\n楽しんでいってね！")
 
         # 上のコマンドで金銭が足りてたらレッツガチャ！
         if iscommand == True:
@@ -300,7 +301,7 @@ class GamesCog(commands.Cog):
                              icon_url=GamesCog.icon)
             await ctx.respond(embed=embed)
 
-    @money.command(name="genshinwish", description="原神ガチャシミュレーター　※楓原万葉ピックアップ中！")
+    @money.command(name="genshinwish", description="原神ガチャシミュレーター　※鍾離ピックアップ中！")
     async def genshinwish(
         self,
         ctx: discord.ApplicationContext,
@@ -311,18 +312,20 @@ class GamesCog(commands.Cog):
         await ctx.respond("処理を開始中...")
 
         # 金銭消費しないならここをFalseに変えてね
-        hogehogehogehoge = True
+        hogehogehogehoge = False
         if hogehogehogehoge == True:
-            if GamesCog.point(ctx.author.id, ctx.author.name) < 3200:
+            if GamesCog.point(ctx.author.id, ctx.author.name) < 0:
                 await ctx.send(f"<@{ctx.author.id}> お金が足りません。/money up で増やしてください。\nあなたの所持金は**{GamesCog.point(ctx.author.id,ctx.author.name)}￥**です。")
                 iscommand = False
                 await ctx.send("処理終了")
             else:
-                GamesCog.getpoint(ctx.author.id, None, -3200)
-                await ctx.send(f"<@{ctx.author.id}> お金を3,200円消費しました。")
+                #GamesCog.getpoint(ctx.author.id, None, -3200)
+                GamesCog.getpoint(ctx.author.id, None, -0)
+                await ctx.send(f"<@{ctx.author.id}> お金を0円消費しました。")
                 iscommand = True
         elif hogehogehogehoge == False:
             iscommand = True
+            await ctx.send(f"お金は使わなかったよ！\n楽しんでいってね！")
 
         # 上のコマンドで金銭が足りてたらレッツガチャ！
         if iscommand == True:

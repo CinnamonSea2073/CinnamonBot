@@ -1,28 +1,60 @@
 ﻿'804079022':
+  level: 44
   name: nikawamikan
-  uid: 804079022
+  uid: '804079022'
   user: nikawamikan
+  world: 5
 '814665147':
+  level: 54
   name: nikawamikan
-  uid: 814665147
+  uid: '814665147'
   user: oseyuki_jp
+  world: 7
+'829990097':
+  level: 35
+  name: CinnamonSea2073.zip
+  uid: '829990097'
+  user: まいける。
+  world: 4
 '851199192':
+  level: 55
   name: N1a
-  uid: 851199192
+  uid: '851199192'
   user: にあ
+  world: 8
 '852136530':
+  level: 50
   name: でんでん
-  uid: 852136530
+  uid: '852136530'
   user: Skydelta
+  world: 5
+'852825922':
+  level: 44
+  name: CinnamonSea2073.zip
+  uid: '852825922'
+  user: でこいまん
+  world: 5
 '857377017':
+  level: 55
   name: CinnamonSea2073.zip
-  uid: 857377017
+  uid: '857377017'
   user: しなもん
+  world: 8
 '858960193':
+  level: 42
   name: CinnamonSea2073.zip
-  uid: 858960193
+  uid: '858960193'
   user: ふぃぼ
-'863009417':
+  world: 5
+'859481860':
+  level: 35
   name: CinnamonSea2073.zip
-  uid: 863009417
+  uid: '859481860'
+  user: 紫奈
+  world: 3
+'863009417':
+  level: 42
+  name: CinnamonSea2073.zip
+  uid: '863009417'
   user: nb26
+  world: 5

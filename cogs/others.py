@@ -6,9 +6,15 @@ from lib.faceutil import get_face, UUID_NotFoundException
 from lib.chouen import getChouen
 from discord_buttons_plugin import *
 import random
+import requests
+import json
+import os
+from dotenv import load_dotenv
 
 buttons = "hoge"
-
+load_dotenv()
+webhook = os.getenv('webhook')
+WEB_HOOK_URL = f"https://discord.com/api/webhooks/1010943571576234065/{webhook}"
 
 class OthersCog(commands.Cog):
 
@@ -171,6 +177,28 @@ class OthersCog(commands.Cog):
         for n in range(3):
             hoge.append(random.choice(word))
         await ctx.respond("".join(hoge))
+
+    @others.command(name="webhook", description="これは、とても危険な、コマンドだ。")
+    async def oku(
+        self,
+        ctx: discord.ApplicationContext,
+        user: Option(str, required=False, description="ユーザー名", ),
+        icon: Option(str, required=False, description="ユーザー名", ),
+        content: Option(str, required=False, description="内容", )
+    ):
+        requests.post(
+            WEB_HOOK_URL, json.dumps(
+                {
+                    "username": user,
+                    "avatar_url": icon,
+                    "content": content
+                }
+            ),
+            headers={
+                    'Content-Type': 'application/json'
+            }
+        )
+        await ctx.respond("送り付けたよ")
 
 def setup(bot):
     bot.add_cog(OthersCog(bot))

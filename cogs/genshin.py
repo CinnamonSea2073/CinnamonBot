@@ -1,17 +1,24 @@
 import discord
 from discord.ui import Select,View,Button
 from discord.ext import commands
-from discord.commands import Option,SlashCommandGroup
+from discord import Option, OptionChoice, SlashCommandGroup
+import math
 import aiohttp
 from lib.yamlutil import yaml
 import traceback
+from typing import List
 
 uidListYaml = yaml(path='uid.yaml')
 uidList = uidListYaml.load_yaml()
 dataYaml = yaml(path='genshin_avater.yaml')
 data = dataYaml.load_yaml()
+charactersYaml = yaml(path='characters.yaml')
+characters = charactersYaml.load_yaml()
+genshinJpYaml = yaml(path='genshinJp.yaml')
+genshinJp = genshinJpYaml.load_yaml()
 icon = "https://images-ext-2.discordapp.net/external/2FdKTBe_yKt6m5hYRdiTAkO0i0HVPkGDOF7lkxN6nO8/%3Fsize%3D128%26overlay/https/crafatar.com/avatars/5d3e654c29bb4ae59e3a5df78372597b.png"
 l: list[discord.SelectOption] = []
+gctx = discord.ApplicationContext
 
 class uidselectView(View):
     @discord.ui.select(
@@ -19,17 +26,188 @@ class uidselectView(View):
             options=l
         )
     async def select_callback(self, select:discord.ui.Select, interaction):
+        global gctx
+        await gctx.interaction.edit_original_message(content="アカウント情報読み込み中...")  
         embed = await GenshinCog.getApi(self,uid=select.values[0])
+        await gctx.interaction.edit_original_message(content="キャラ情報読み込み中...")  
         #view = View()
         #getListで、IDが入ったリストを持ってくる
         #とりあえずIDの数だけボタンを生成
-        #for id in GenshinCog.getList(self,uid=select.values[0]):
-            #button = Button(
-                #label=id,
-                #style=discord.ButtonStyle.gray,
-            #)
-            #view.add_item(button)
-        await interaction.response.edit_message(content=None,embed=embed,view=None)
+        hoge = []
+        for id in await GenshinCog.getList(self,uid=select.values[0]):
+            hoge.append(id)
+        await gctx.respond(content=None,embed=embed,view=TicTacToe(hoge, select.values[0]))
+
+async def getCharacter(uid,id):
+    url = f"https://enka.network/u/{uid}/__data.json"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            resp = await response.json()
+    name = characters[id]["NameId"]
+    name = genshinJp[name]
+    embed = discord.Embed( 
+                        title=name,
+                        color=0x1e90ff, 
+                        description="多分リアルタイムだよ", 
+                        url=url 
+                        )
+    print(id)
+    id = int(id)
+    try:
+        for n in resp['avatarInfoList']:
+            if n["avatarId"] == id:
+                chara = n
+                print("hogehogheogheohgpoihvgp;ogiazwqp;oabwo")
+                break
+            else:
+                continue
+        for n in resp['playerInfo']["showAvatarInfoList"]:
+            print(n["avatarId"])
+            if n["avatarId"] == id:
+                level = n["level"]
+                print("hogehogehoge")
+                break
+            else:
+                continue
+        hoge = characters[str(id)]["sideIconName"]
+        embed.set_author(name=resp['playerInfo']['nickname'],
+                icon_url=f"https://enka.network/ui/{hoge}.png"
+                )
+        embed.add_field(inline=True,name="キャラレベル",value=f"{level}lv")
+        embed.add_field(inline=True,name="キャラ突破レベル",value=str(chara["propMap"]["1002"]["ival"]))
+        embed.add_field(inline=True,name="HP",
+            value=f'{str(round(chara["fightPropMap"]["1"]))} + {str(round(chara["fightPropMap"]["2000"]) - round(chara["fightPropMap"]["1"]))} = {str(round(chara["fightPropMap"]["2000"]))}'
+        )
+        embed.add_field(inline=True,name="攻撃力",
+            value=f'{str(round(chara["fightPropMap"]["4"]))} + {str(round(chara["fightPropMap"]["2001"]) - round(chara["fightPropMap"]["4"]))} = {str(round(chara["fightPropMap"]["2001"]))}'
+        )
+        embed.add_field(inline=True,name="防御力",
+            value=f'{str(round(chara["fightPropMap"]["7"]))} + {str(round(chara["fightPropMap"]["2002"]) - round(chara["fightPropMap"]["7"]))} = {str(round(chara["fightPropMap"]["2002"]))}'
+        )
+        embed.add_field(inline=True,name="会心率",
+            value=f'{str(round(chara["fightPropMap"]["20"] *100))}%'
+        )
+        embed.add_field(inline=True,name="会心ダメージ",
+            value=f'{str(round(chara["fightPropMap"]["22"]*100))}%'
+        )
+        embed.add_field(inline=True,name="元素チャージ効率",
+            value=f'{str(round(chara["fightPropMap"]["23"]*100))}%'
+        )
+        embed.add_field(inline=True,name="元素熟知",
+            value=f'{str(round(chara["fightPropMap"]["28"]))}'
+        )
+        buf = 1
+        if round(chara["fightPropMap"]["30"]*100) > 0:
+            embed.add_field(inline=True,name="物理ダメージ",
+                value=f'{str(round(chara["fightPropMap"]["30"]*100))}%'
+            )
+            buf += round(chara["fightPropMap"]["30"])
+        elif round(chara["fightPropMap"]["40"]*100) > 0:
+            embed.add_field(inline=True,name="炎元素ダメージ",
+                value=f'{str(round(chara["fightPropMap"]["40"]*100))}%'
+            )
+            buf += round(chara["fightPropMap"]["40"])
+        elif round(chara["fightPropMap"]["41"]*100) > 0:
+            embed.add_field(inline=True,name="雷元素ダメージ",
+                value=f'{str(round(chara["fightPropMap"]["41"]*100))}%'
+            )
+            buf += round(chara["fightPropMap"]["41"])
+        elif round(chara["fightPropMap"]["42"]*100) > 0:
+            embed.add_field(inline=True,name="水元素ダメージ",
+                value=f'{str(round(chara["fightPropMap"]["42"]*100))}%'
+            )
+            buf += round(chara["fightPropMap"]["42"])
+        elif round(chara["fightPropMap"]["43"]*100) > 0:
+            embed.add_field(inline=True,name="草元素ダメージ",
+                value=f'{str(round(chara["fightPropMap"]["43"]*100))}%'
+            )
+            buf += round(chara["fightPropMap"]["42"])
+        elif round(chara["fightPropMap"]["44"]*100) > 0:
+            embed.add_field(inline=True,name="風元素ダメージ",
+                value=f'{str(round(chara["fightPropMap"]["44"]*100))}%'
+            )
+            buf += round(chara["fightPropMap"]["44"])
+        elif round(chara["fightPropMap"]["45"]*100) > 0:
+            embed.add_field(inline=True,name="岩元素ダメージ",
+                value=f'{str(round(chara["fightPropMap"]["45"]*100))}%'
+            )
+            buf += round(chara["fightPropMap"]["45"])
+        elif round(chara["fightPropMap"]["46"]*100) > 0:
+            embed.add_field(inline=True,name="氷元素ダメージ",
+                value=f'{str(round(chara["fightPropMap"]["46"]*100))}%'
+            )
+            buf += round(chara["fightPropMap"]["46"])
+        tmp = 1 + round(chara["fightPropMap"]["20"]) * round(chara["fightPropMap"]["22"])
+        embed.add_field(inline=False,name="**ダメージ計算結果（雑計算）**",
+            value=f'{str(round(chara["fightPropMap"]["4"]) * tmp * buf)}'
+        )
+        temp = []
+        for myvalue in chara["skillLevelMap"].values():
+            temp.append(f"{myvalue}")
+        embed.add_field(inline=False,name="天賦レベル",
+            value="\n".join(temp)
+        )
+        for n in chara["equipList"]:
+            hoge = str(n["flat"]["setNameTextMapHash"])
+            print(hoge)
+            name = genshinJp[hoge]
+            equip = genshinJp[n["flat"]["equipType"]]
+            main = genshinJp[n["flat"]["reliquaryMainstat"]["mainPropId"]]
+            hoge = []
+            for b in n["flat"]["reliquarySubstats"]:
+                name_ = genshinJp[b["appendPropId"]]
+                value_ = b["statValue"]
+                hoge.append(f"{name_}：{value_}")
+            embed.add_field(inline=True,name=f'聖遺物：{equip}\n{name}\n{main}：{n["flat"]["reliquaryMainstat"]["statValue"]}\n{n["reliquary"]["level"]-1}lv\n',
+                value="\n".join(hoge)
+            )
+    except KeyError:
+        #raise
+        embed.add_field(inline=False,name="エラー",value="多分キャラ詳細が非公開だと思われるよ。原神の設定で後悔設定にしてね。")
+    embed.set_footer(text="made by CinnamonSea2073", icon_url=icon)
+    return embed
+
+class TicTacToeButton(discord.ui.Button["TicTacToe"]):
+    def __init__(self, label: str, uid: str, dict):
+        super().__init__(style=discord.ButtonStyle.secondary, label=label)
+        self.dict = dict
+        self.uid = uid
+
+    async def callback(self, interaction: discord.Interaction):
+        assert self.view is not None
+        view: TicTacToe = self.view
+
+        self.style = discord.ButtonStyle.success
+        content = self.label
+        #ラベル（名前）からIDを割り出す
+        #多分「名前：iD」ってなってるはず
+        id = self.dict[self.label]
+        print(interaction.user.id)
+        for child in self.view.children:
+            child.style = discord.ButtonStyle.gray
+        await interaction.response.edit_message(content=content, embed=await getCharacter(self.uid, id), view=None)
+
+class TicTacToe(discord.ui.View):
+    children: List[TicTacToeButton]
+
+    def __init__(self, data, uid):
+        super().__init__(timeout=190)
+        names = []
+        dict = {}
+        #入ってきたidを名前にしてリスト化
+        for id in data:
+            id = str(id)
+            print(id)
+            name = characters[id]["NameId"]
+            print(name)
+            name = genshinJp[name]
+            print(name)
+            names.append(name)
+            dict.update({name: id})
+            print(dict)
+        #名前をラベル、ついでにdictとuidも送り付ける
+        for v in names:
+            self.add_item(TicTacToeButton(v,uid,dict))
 
 class GenshinCog(commands.Cog):
 
@@ -83,12 +261,10 @@ class GenshinCog(commands.Cog):
             async with session.get(url) as response:
                 resp = await response.json()
                 resalt = []
-        for id in resp["showAvatarInfoList"]:
+        for id in resp["playerInfo"]["showAvatarInfoList"]:
             resalt.append(id["avatarId"])
         return resalt
 
-
-    
     genshin = SlashCommandGroup('genshin', 'test')
 
     @genshin.command(name="get", description="UUIDからキャラ情報を取得します")
@@ -97,8 +273,10 @@ class GenshinCog(commands.Cog):
             ctx: discord.ApplicationContext,
     ):
         await ctx.respond("読み込み中")
+        global gctx
+        gctx = ctx
         view = uidselectView()
-        await ctx.send(view=view)
+        await ctx.send(content="読み込み完了", view=view)
 
     @genshin.command(name="set", description="あなたのUIDを設定します")
     async def genshin_set(
@@ -117,7 +295,7 @@ class GenshinCog(commands.Cog):
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
                     resp = await response.json()
-            uidList[str(uid)] = {"uid": uid, "name": ctx.author.name, "user": resp['playerInfo']['nickname']}
+            uidList[str(uid)] = {"uid": uid, "name": ctx.author.name, "user": resp['playerInfo']['nickname'], "level": resp['playerInfo']['level'], "world": resp['playerInfo']['worldLevel']}
             uidListYaml.save_yaml(uidList)
             global l
             l.append(discord.SelectOption(label=str(uid), description=resp['playerInfo']['nickname']))
@@ -127,24 +305,47 @@ class GenshinCog(commands.Cog):
             await self.bot.get_partial_messageable(1009731664412426240).send(f"```{traceback.format_exc()}``")
             raise
 
-    @genshin.command(name="getList", description="登録されてるプレイヤーの情報をまとめて取得します")
+    @genshin.command(name="relord", description="【管理者限定】登録されてるプレイヤーの情報を更新します。")
+    @commands.has_permissions(manage_messages=True)
     async def genshin_getList(
             self,
             ctx: discord.ApplicationContext,
     ):
-        await ctx.respond("読み込み中")
+        await ctx.respond("読み込み中...")
         embed = discord.Embed( 
             title="原神ステータスだよ",
             color=0x1e90ff, 
             )
+        await ctx.send("くっそ時間かかるよ")
         for uid in uidList:
             url = f"https://enka.network/u/{uid}/__data.json"
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
                     resp = await response.json()
+            await ctx.send(f"読み込み中「{resp['playerInfo']['nickname']}」")
+            uidList[str(uid)] = {"uid": uid, "name": uidList[uid]['name'], "user": resp['playerInfo']['nickname'], "level": resp['playerInfo']['level'], "world": resp['playerInfo']['worldLevel']}
+            uidListYaml.save_yaml(uidList)
             embed.add_field(
-                name=resp['playerInfo']['nickname'],
-                value=f"UID：{uid}\nレベル：{resp['playerInfo']['level']}\nランク：{resp['playerInfo']['worldLevel']}"
+                name=uidList[uid]['user'],
+                value=f"UID：{uid}\nレベル：{uidList[uid]['level']}\nランク：{uidList[uid]['world']}"
+            )
+        embed.set_footer(text="made by CinnamonSea2073", icon_url=icon)
+        await ctx.send(embed=embed)
+
+    @genshin.command(name="getlist", description="登録されてるプレイヤーの情報をまとめて取得します")
+    async def genshin_getList(
+            self,
+            ctx: discord.ApplicationContext,
+    ):
+        await ctx.respond("読み込み中...")
+        embed = discord.Embed( 
+            title="原神ステータスだよ",
+            color=0x1e90ff, 
+            )
+        for uid in uidList:
+            embed.add_field(
+                name=uidList[uid]['user'],
+                value=f"UID：{uid}\nレベル：{uidList[uid]['level']}\nランク：{uidList[uid]['world']}"
             )
         embed.set_footer(text="made by CinnamonSea2073", icon_url=icon)
         await ctx.send(embed=embed)

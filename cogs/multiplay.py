@@ -55,7 +55,7 @@ class roomselectView(View):
                     await channel.send(content=f"<@{interaction.user.id}> が入室しました。")
                     await interaction.response.edit_message(content="#ゲーム部屋1 に移動してください。",view=self)
             elif matchmade.selectfalse == True:
-                await interaction.response.edit_message(content="この部屋はもうゲームを開始してる！",view=self)
+                await interaction.response.edit_message(content="この部屋はもうゲームを開始しています",view=self)
 
 class matchmade():
 

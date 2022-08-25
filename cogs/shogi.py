@@ -59,6 +59,12 @@ class helpselectView(View):
                     emoji="💻",
                     description="みんなもこれでITパスポートに合格してドヤろう！※PCでの参加を推奨します",
                     #default=True
+                    ),
+                discord.SelectOption(
+                    label="原神impact",
+                    emoji="✨",
+                    description="原神ガチ勢への道！※PCでの参加を推奨します",
+                    #default=True
                     )
         ])
     async def select_callback(self, select:discord.ui.Select, interaction):
@@ -75,6 +81,12 @@ class helpselectView(View):
                 print("雑学")
                 select.disabled = True
                 hoge = random.choice(minhaya)
+                await interaction.followup.send(content=hoge['exam'], view=TicTacToe_row(hoge))
+        elif select.values[0] == "原神impact":
+            for n in range(10):
+                print("原神")
+                select.disabled = True
+                hoge = random.choice(minhaya_genre['genshin'])
                 await interaction.followup.send(content=hoge['exam'], view=TicTacToe_row(hoge))
         elif select.values[0] == "All":
             for n in range(10):
@@ -135,7 +147,8 @@ class TicTacToe(discord.ui.View):
         super().__init__(timeout=190)
         self.a = data["a"]
         self.exam = data["exam"]
-        hoge = data.get('ans')
+        #hoge = data.get('ans')
+        hoge = data['ans']
         random.shuffle(hoge)
         for v in hoge:
             self.add_item(TicTacToeButton(v))
@@ -175,6 +188,13 @@ class TicTacToeCog(commands.Cog):
         hoge = get_question()
         await TicTacToeCog.countdown(ctx=ctx, n=3, message="{}秒後に問題が出ます")
         await ctx.interaction.edit_original_message(content=hoge['exam'], view=TicTacToe(hoge))
+    
+    @nb.command(name='原神', description='【原神クイズ】問題からランダムで排出します')
+    async def hayaoshi_genshin(self, ctx: discord.ApplicationContext):
+        # レスポンスで定義したボタンを返す
+        await TicTacToeCog.countdown(ctx=ctx, n=3, message="{}秒後に問題が出ます")
+        hoge = random.choice(minhaya_genre['genshin'])
+        await ctx.interaction.edit_original_message(content=hoge['exam'], view=TicTacToe(hoge))
 
     @nb.command(name='genre_get', description='【カウントダウン等が無いため、競技非推奨】ジャンルを指定してから問題を10問ほどランダムで排出します')
     async def button_genre(self, ctx: discord.ApplicationContext):
@@ -195,6 +215,34 @@ class TicTacToeCog(commands.Cog):
         point.GamesCog.getpoint(ctx.author.id,ctx.author.name,10000)
         await ctx.send(f"<@{ctx.author.id}> 10,000円が追加されました！問題追加ありがとう！！")
         #print([content,ans1,a])
+
+    @nb.command(name="genshin_add", description="原神に問題を追加します")
+    async def genshinans_add(
+        self,
+        ctx: discord.ApplicationContext,
+        content: Option(str, required=True, description="問題の文章です", ),
+        ans1: Option(str, required=True, description="【間違いを入力】問題の選択肢1", ),
+        ans2: Option(str, required=True, description="【間違いを入力】問題の選択肢2", ),
+        ans3: Option(str, required=True, description="【間違いを入力】問題の選択肢3", ),
+        a: Option(str, required=True, description="【答えを入力】問題の答え", )
+    ):
+        global minhaya_genre
+        #genreがallだったら、適当なprintしてifを飛ばす
+        for num in range(100):
+            try:
+                hoge = minhaya_genre['genshin'][num]
+                print(hoge)
+                continue
+            except KeyError:
+                #genreがitの時、多分minhaya["it"][num] = {"exam"...ってなってるはず
+                minhaya_genre['genshin'][num] = {"exam": content, "ans": [ans1,ans2,ans3,a], "a": a}
+                #genreがitの時、多分minhaya_genreYamlになってるはず
+                minhaya_genreYaml.save_yaml(minhaya_genre)
+                #このsaveの結果、minhaya_gen.yamlで一番最初の「it」が消えて普通の奴と同じように「0」とかから始まってしまう
+                break
+        await ctx.respond(f"問題に **{str(minhaya_genre['genshin'][num]['exam'])}** を追加しました")
+        point.GamesCog.getpoint(ctx.author.id,ctx.author.name,10000)
+        await ctx.send(f"<@{ctx.author.id}> 10,000円が追加されました！問題追加ありがとう！！")
 
 def setup(bot):
     bot.add_cog(TicTacToeCog(bot))
