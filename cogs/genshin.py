@@ -36,6 +36,7 @@ class uidselectView(View):
         hoge = []
         for id in await GenshinCog.getList(self,uid=select.values[0]):
             hoge.append(id)
+            await gctx.interaction.edit_original_message(content=f"{id}を読み込み中...")  
         await gctx.respond(content=None,embed=embed,view=TicTacToe(hoge, select.values[0]))
 
 async def getCharacter(uid,id):
