@@ -1,11 +1,10 @@
 from discord.ext import commands
 import discord
-from dotenv import load_dotenv
 import os
 import traceback
 
-bot = commands.Bot(debug_guilds=[879288794560471050])
-load_dotenv()
+bot = commands.Bot()
+# debug_guilds=[879288794560471050]
 TOKEN = os.getenv('TOKEN')
 print(TOKEN)
 
@@ -29,17 +28,17 @@ async def on_ready():
     print(f"Bot名:{bot.user} On ready!!")
 
 bot.load_extension('cogs.others')
-#bot.load_extension('cogs.itudoko')
-#bot.load_extension('cogs.point')
-#bot.load_extension('cogs.hogestory')
-#bot.load_extension('cogs.superchat')
+bot.load_extension('cogs.itudoko')
+bot.load_extension('cogs.point')
+bot.load_extension('cogs.hogestory')
+bot.load_extension('cogs.superchat')
 #bot.load_extension('cogs.help')
 bot.load_extension('cogs.todo')
 bot.load_extension('cogs.shogi', store=False)
-#bot.load_extension('cogs.nb')
-#bot.load_extension('cogs.keiba')
+bot.load_extension('cogs.nb')
+bot.load_extension('cogs.keiba')
 #bot.load_extension('cogs.stat')
-#bot.load_extension('cogs.timer')
+bot.load_extension('cogs.timer')
 #bot.load_extension('cogs.talk')
 #bot.load_extension('cogs.genshin', store=False)
 #bot.load_extension('cogs.test')

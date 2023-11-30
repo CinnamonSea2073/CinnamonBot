@@ -6,11 +6,9 @@ from discord.ui import View
 from discord import Option, OptionChoice, SlashCommandGroup
 import cogs.point as point
 import os
-from dotenv import load_dotenv
 from janome.tokenizer import Tokenizer
 
-load_dotenv()
-talkAPIkey = os.getenv('talkAPIkey')
+talkAPIkey = "os.getenv('talkAPIkey')"
 t = Tokenizer()
 icon = "https://images-ext-2.discordapp.net/external/2FdKTBe_yKt6m5hYRdiTAkO0i0HVPkGDOF7lkxN6nO8/%3Fsize%3D128%26overlay/https/crafatar.com/avatars/5d3e654c29bb4ae59e3a5df78372597b.png"
 

@@ -4,3 +4,8 @@ selenium
 chromedriver-binary
 beautifulsoup4
 pandas
+googletrans
+discord-buttons-plugin
+janome
+aiohttp
+pyyaml

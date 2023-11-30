@@ -9,12 +9,9 @@ import random
 import requests
 import json
 import os
-from dotenv import load_dotenv
 
 buttons = "hoge"
-load_dotenv()
-webhook = os.getenv('webhook')
-WEB_HOOK_URL = f"https://discord.com/api/webhooks/1010943571576234065/{webhook}"
+WEB_HOOK_URL = f"https://discord.com/api/webhooks/1010943571576234065/ほげ"
 
 class OthersCog(commands.Cog):
 
