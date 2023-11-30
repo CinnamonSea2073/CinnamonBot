@@ -1,0 +1,6 @@
+py-cord >= 2.4
+requests
+selenium
+chromedriver-binary
+beautifulsoup4
+pandas

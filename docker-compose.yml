@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  bot:
+    container_name: cinnamon-bot
+    build: ./bot
+    volumes:
+      - ./bot:/usr/src/bot:rw
+    env_file:
+      - .env
+    environment:
+      # bot token
+      - TOKEN=${TOKEN}
+      # TimeZone
+      - TZ=Asia/Tokyo
+    tty: true
+    command: [ "python3", "main.py" ]
+    restart: always
+    networks:
+      - default
